@@ -1,0 +1,115 @@
+role;pattern
+Agentive;(ADJ) [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia> AUX/wurden
+Agentive;(ADJ) [<query>NOUN</query>,NP] (ADJ) AUX/wurden <qualia>VERB</qualia>
+Agentive;[<query>NOUN</query>,NP] AUX/ist (ADJ) ADP/von (DET) <qualia>[NOUN,NP]</qualia> (ADJ) VERB/gemacht (AUX) (PUNCT/.)
+Agentive;[<query>NOUN</query>,NP] AUX/ist VERB/gemacht (AUX) ADP/von (DET) <qualia>[NOUN,NP]</qualia> (PUNCT/.)
+Agentive;[<query>NOUN</query>,NP] AUX/sind (ADJ) ADP/von (DET) <qualia>[NOUN,NP]</qualia> (ADJ) VERB/gemacht (AUX) (PUNCT/.)
+Agentive;[<query>NOUN</query>,NP] AUX/sind VERB/gemacht (AUX) ADP/von (DET) <qualia>[NOUN,NP]</qualia> (PUNCT/.)
+Agentive;[<query>NOUN</query>,NP] AUX/wurde (ADJ) ADP/von (DET) <qualia>[NOUN,NP]</qualia> (ADJ) VERB/produziert (PUNCT/.)
+Agentive;[<query>NOUN</query>,NP] AUX/wurde VERB/produziert ADP/von (DET) <qualia>[NOUN,NP]</qualia> (PUNCT/.)
+Agentive;[<query>NOUN</query>,NP] AUX/wurden (ADJ) ADP/von (DET) <qualia>[NOUN,NP]</qualia> (ADJ) VERB/produziert (PUNCT/.)
+Agentive;[<query>NOUN</query>,NP] AUX/wurden VERB/produziert ADP/von (DET) <qualia>[NOUN,NP]</qualia> (PUNCT/.)
+Agentive;ADJ/neue (ADJ) [<query>NOUN</query>,NP] <qualia>VERB</qualia> AUX/worden
+Agentive;ADJ/neue (ADJ) [<query>NOUN</query>,NP] <qualia>VERB</qualia> AUX/wurden
+Agentive;ADJ/neue [<query>NOUN</query>,NP] AUX/wurden <qualia>VERB</qualia>
+Agentive;ADJ/neueste (ADJ) [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia> AUX/worden
+Agentive;ADJ/neueste (ADJ) [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia> AUX/wurden
+Agentive;ADJ/neueste (ADJ) [<query>NOUN</query>,NP] AUX/wurden (ADJ) <qualia>VERB</qualia>
+Agentive;ADJ/vollständige [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia> AUX/worden
+Agentive;ADJ/vollständige [<query>NOUN</query>,NP] AUX/wurden <qualia>VERB</qualia>
+Agentive;ADP (ADJ) [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia>
+Agentive;ADP (ADJ) [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia> PART/zu VERB/können
+Agentive;DET/ein (ADJ) [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia> AUX/wurde
+Agentive;DET/ein (ADJ) [<query>NOUN</query>,NP] (ADJ) AUX/wurde <qualia>VERB</qualia>
+Agentive;DET/eine (ADJ) [<query>NOUN</query>,NP] (ADJ) <qualia>VERB</qualia> AUX/wurde
+Agentive;DET/eine (ADJ) [<query>NOUN</query>,NP] (ADJ) AUX/wurde <qualia>VERB</qualia>
+Constitutive;[<query>NOUN</query>,NP] AUX/ist ADP/aus (DET) (ADJ) <qualia>[NP,NOUN]</qualia> VERB/gemacht (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/ist VERB/gemacht ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/sind (ADJ) ADP/aus (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/hergestellt (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/sind (ADJ) ADP/von (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/gemacht (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/sind ADP/aus (DET) (ADJ) <qualia>[NP,NOUN]</qualia> VERB/gemacht (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/sind VERB/gemacht ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/sind VERB/gemacht ADP/von (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/sind VERB/hergestellt ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurde (ADJ) ADP/aus (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/produziert (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurde (ADJ) ADP/für (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/gemacht (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurde (ADJ) ADP/für (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/hergestellt (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurde VERB/gemacht ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurde VERB/hergestellt ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurde VERB/produziert ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurden (ADJ) ADP/aus (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/produziert (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurden (ADJ) ADP/für (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/gemacht (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurden (ADJ) ADP/für (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (ADJ) VERB/hergestellt (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurden VERB/gemacht ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurden VERB/hergestellt ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] AUX/wurden VERB/produziert ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] VERB/bestehen ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] VERB/besteht ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[<query>NOUN</query>,NP] VERB/hergestellt ADP/aus (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Constitutive;[NP,<query>NOUN</query>] ADP/aus PP <qualia>[NP,NOUN]</qualia> (ADJ) VERB/bestehen
+Constitutive;[NP,<query>NOUN</query>] ADP/aus PP <qualia>[NP,NOUN]</qualia> (ADJ) VERB/besteht
+Constitutive;[NP,<query>NOUN</query>] ADP/aus PP <qualia>[NP,NOUN]</qualia> (ADJ) VERB/zusammengesetzt
+Constitutive;[NP,<query>NOUN</query>] AUX/ist ADP/aus PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] AUX/sind ADP/aus PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] VERB/beinhalten PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] VERB/beinhaltet PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] VERB/besteht ADP/aus PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] VERB/integrieren PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] VERB/integriert PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] VERB/umfassen PP <qualia>[NP,NOUN]</qualia>
+Constitutive;[NP,<query>NOUN</query>] VERB/umfasst PP <qualia>[NP,NOUN]</qualia>
+Constitutive;<qualia>NOUN</qualia> AUX/ist (DET) (ADJ) NOUN/Bestandteil (DET) (ADJ) <query>NOUN</query>
+Formal;(DET/Ein) (ADJ) <query>NOUN</query> AUX/ist (DET) (ADJ) <qualia>[CNP,NP,NOUN]</qualia>
+Formal;(DET/Eine) (ADJ) <query>NOUN</query> AUX/ist (DET) (ADJ) <qualia>[CNP,NP,NOUN]</qualia>
+Formal;[<query>NOUN</query>,NP] AUX/ist (ADJ) DET/eine NOUN/Art ADP/von (ADJ) <qualia>[NOUN,NP]</qualia>
+Formal;[NP,<query>NOUN</query>] AUX/ist (DET) (ADJ) NOUN/Art (ADJ) <qualia>[NP,NOUN]</qualia>
+Formal;<qualia>[NOUN,NP]</qualia> (PUNCT/,) CCONJ/oder ADJ/andere (ADJ) [<query>NOUN</query>,NP]
+Formal;<qualia>[NOUN,NP]</qualia> (PUNCT/,) CCONJ/und ADJ/andere (ADJ) [<query>NOUN</query>,NP]
+Formal;<qualia>[NOUN,NP]</qualia> ADP/einschlieálich (ADJ) [<query>NOUN</query>,NP]
+Formal;<qualia>[NOUN,NP]</qualia> ADV/so SCONJ/wie (ADJ) [<query>NOUN</query>,NP]
+Formal;<qualia>[NOUN,NP]</qualia> ADV/so SCONJ/wie [<query>NOUN</query>,NP]
+Formal;<qualia>NOUN</qualia> ADV/insbesondere (ADJ) <query>NOUN</query>
+Formal;<qualia>NP</qualia> ADV/insbesondere (ADJ) [NP,<query>NOUN</query>]
+Formal;<query>NOUN</query> AUX/sind (DET) (ADJ) <qualia>[CNP,NP,NOUN]</qualia>
+Telic;[<query>NOUN</query>,NP] AUX/hat (ADJ) ADP/zum (ADJ) NOUN/Ziel PUNCT/, SCONJ/dass (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/ist ADJ/brauchbar ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/ist ADJ/nutzbar ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/ist ADJ/nützlich ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/ist ADP/für (DET) <qualia>[NP,NOUN]</qualia> ADJ/brauchbar (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/ist ADP/für (DET) <qualia>[NP,NOUN]</qualia> ADJ/nutzbar (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/ist ADP/für (DET) <qualia>[NP,NOUN]</qualia> ADJ/nützlich (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/sind ADJ/brauchbar ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/sind ADJ/nutzbar ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/sind ADJ/nützlich ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/sind ADP/für (DET) <qualia>[NP,NOUN]</qualia> ADJ/brauchbar (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/sind ADP/für (DET) <qualia>[NP,NOUN]</qualia> ADJ/nutzbar (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/sind ADP/für (DET) <qualia>[NP,NOUN]</qualia> ADJ/nützlich (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/werden VERB/benutzt ADP/um <qualia>[NP,NOUN]</qualia>
+Telic;[<query>NOUN</query>,NP] AUX/wird ADP/um <qualia>[NP,NOUN]</qualia> VERB/benutzt
+Telic;[<query>NOUN</query>,NP] AUX/wird VERB/benutzt ADP/um <qualia>[NP,NOUN]</qualia>
+Telic;[<query>NOUN</query>,NP] AUX/wurde ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/entwickelt (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/gebaut (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/konstruiert (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/produziert (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/realisiert (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde VERB/entwickelt ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde VERB/gebaut ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde VERB/konstruiert ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde VERB/produziert ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurde VERB/realisiert ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/entwickelt (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/gebaut (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/konstruiert (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/produziert (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden ADP/für (DET) <qualia>[NP,NOUN]</qualia> VERB/realisiert (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden VERB/entwickelt ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden VERB/gebaut ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden VERB/konstruiert ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden VERB/produziert ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] AUX/wurden VERB/realisiert ADP/für (DET) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] NOUN/Sinn ADP/von (DET) (ADJ) [NOUN,NP] AUX/sind <qualia>[NP,NOUN,CP]</qualia>
+Telic;[<query>NOUN</query>,NP] VERB/benutzt PRON/man ADP/um PART/zu <qualia>[NP,NOUN]</qualia>
+Telic;[<query>NOUN</query>,NP] VERB/dienen PRON/dem (ADJ) NOUN/Zweck (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] VERB/dient PRON/dem (ADJ) NOUN/Zweck (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] VERB/ergab PRON/sich ADP/aus DET/der (ADJ) NOUN/Forschung ADP/zu (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (PUNCT/.)
+Telic;[<query>NOUN</query>,NP] VERB/ergaben PRON/sich ADP/aus DET/der (ADJ) NOUN/Forschung ADP/zu (DET) (ADJ) <qualia>[NP,NOUN]</qualia> (PUNCT/.)

@@ -1,0 +1,21 @@
+{
+    "version": "2.0",
+    "patternAndRoles": "/home/user/QualiAssistant/patternAndRoles_German.csv",
+    "language": "german",
+
+    "datasetPreparation": {
+        "prepareFile": false,
+        "fileToPreprocess": "/home/user/QualiAssistant/offenesParlament/offenesParlament.csv",
+        "columnWithTextToProceed": "text",
+        "onlyWithSignalWords": true
+    },
+
+    "queryProcessing": {
+        "processQuery": true,
+        "filePreprocessed": "/home/user/QualiAssistant/offenesParlament/offenesParlament_preprocessed.csv",
+        "reduceSearchToQuery": "",
+        "deepSearch": true,
+        "useStemming": true,
+        "outputDirectory": "/home/user/QualiAssistant/queries_with_results"
+    }
+}
