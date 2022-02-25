@@ -84,7 +84,7 @@ public QualiaIdentifier (
                     new BufferedWriter(
                             new OutputStreamWriter(
                                     new FileOutputStream(
-                                            String.valueOf(pathToFileWithQualiaRolesForQuery).replace(".csv", "_" + query + ".csv")
+                                            query == null || query.isEmpty() ? String.valueOf(pathToFileWithQualiaRolesForQuery) : String.valueOf(pathToFileWithQualiaRolesForQuery).replace(".csv", "_" + query + ".csv")
                                     ),
                                     StandardCharsets.UTF_8)
                     ),

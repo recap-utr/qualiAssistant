@@ -28,7 +28,7 @@ public class Main {
             JsonNode root = objectMapper.readTree(Files.readString(Path.of(filename)));
 
             String version = root.get("version").asText();
-            String requestedVersion = "1.0.1";
+            String requestedVersion = "1.0.2";
             qualiAssistantVersionCheck(version, requestedVersion);
 
             Path pathToQualiaPatternsFile = Path.of(root.get("qualiaPatternsFile").asText());
@@ -64,7 +64,7 @@ public class Main {
             if (processQuery) {
                 String reduceSearchToQuery = node_queryProcessing.get("reduceSearchToQuery").asText();
                 boolean deepSearch = node_queryProcessing.get("deepSearch").asBoolean();
-                Path pathToFileWithOutput = Paths.get(node_queryProcessing.get("outputDirectory").asText(), pathToFilePreprocessed.getFileName().toString().replace(".csv", "_withQualiaRolesForQuery.csv"));
+                Path pathToFileWithOutput = Paths.get(node_queryProcessing.get("outputDirectory").asText(), pathToFilePreprocessed.getFileName().toString().replace(".csv", reduceSearchToQuery == null || reduceSearchToQuery.isEmpty() ? "_withQualiaRolesIndependentFromQuery.csv" : "_withQualiaRolesForQuery.csv"));
                 boolean useStemming = node_queryProcessing.get("useStemming").asBoolean();
 
                 QualiaIdentifier QUALIA_IDENTIFIER = new QualiaIdentifier(
