@@ -535,22 +535,33 @@ public QualiaIdentifier (
 
         while(true) {
             boolean foundUnexploredSubGraph = false;
-            for (var unexploredNode : map_unexploredSubGraph_alreadySeen.entrySet()) {
-                if (!map_unexploredSubGraph_alreadySeen.get(unexploredNode.getKey())) {
-                    map_unexploredSubGraph_alreadySeen.put(unexploredNode.getKey(), true);
-                    foundUnexploredSubGraph = true;
-
+            for (var entry_unexploredSubGraph_alreadySeen : map_unexploredSubGraph_alreadySeen.entrySet()) {
+                if (!entry_unexploredSubGraph_alreadySeen.getValue()) {
                     Map<POSNode, Boolean> map_posNode_visited = new HashMap<>();
                     List<POSNode> foundPOSSequence = new ArrayList<>();
                     int positionInPOSSequence = 0;
-                    findSubgraph(unexploredNode.getKey(), possiblePOSSequence, map_posNode_visited, foundPOSSequence, positionInPOSSequence, booleanSubgraphList, map_unexploredSubGraph_alreadySeen);
+
+                    findSubgraph(
+                            entry_unexploredSubGraph_alreadySeen.getKey(),
+                            possiblePOSSequence,
+                            map_posNode_visited,
+                            foundPOSSequence,
+                            positionInPOSSequence,
+                            booleanSubgraphList,
+                            map_unexploredSubGraph_alreadySeen);
+
                     for (BooleanSubgraph booleanSubGraph : booleanSubgraphList) {
                         if (booleanSubGraph.subgraphFound) {
                             listOfSubGraphsWithoutLeafs.add(booleanSubGraph.foundPOSSequence);
                         }
                     }
+
+                    map_unexploredSubGraph_alreadySeen.put(entry_unexploredSubGraph_alreadySeen.getKey(), true);
+                    foundUnexploredSubGraph = true;
+                    break;
                 }
             }
+
             if (!foundUnexploredSubGraph) {
                 break;
             }
