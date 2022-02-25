@@ -28,7 +28,32 @@ public class PreprocessText {
     private static final List<String> signalWords = new ArrayList<>();
 
 
-    public void preprocessTextForQualiaSearch(File selectedFileToPreprocess, String columnNameInCSVFileWithTextToProceed, boolean fastRun, Path pathToFileWithQualiaRolesForQuery, File pathToFilePreprocessed, LanguageManager languageManager) {
+    File selectedFileToPreprocess;
+    String columnNameInCSVFileWithTextToProceed;
+    boolean fastRun;
+    Path pathToFileWithQualiaRolesForQuery;
+    File pathToFilePreprocessed;
+    LanguageManager languageManager;
+
+
+    public PreprocessText (
+            File selectedFileToPreprocess,
+            String columnNameInCSVFileWithTextToProceed,
+            boolean fastRun,
+            Path pathToFileWithQualiaRolesForQuery,
+            File pathToFilePreprocessed,
+            LanguageManager languageManager) {
+
+        this.selectedFileToPreprocess = selectedFileToPreprocess;
+        this.columnNameInCSVFileWithTextToProceed = columnNameInCSVFileWithTextToProceed;
+        this.fastRun = fastRun;
+        this.pathToFileWithQualiaRolesForQuery = pathToFileWithQualiaRolesForQuery;
+        this.pathToFilePreprocessed = pathToFilePreprocessed;
+        this.languageManager = languageManager;
+    }
+
+
+    public void preprocessTextForQualiaSearch() {
         try {
             CSVParser csvParser_fileToPreprocess = readCSVFile(Paths.get(String.valueOf(selectedFileToPreprocess)));
             List<String> headerOld = Objects.requireNonNull(csvParser_fileToPreprocess).getHeaderNames();
@@ -51,7 +76,7 @@ public class PreprocessText {
             List<CSVRecord> csvRecords = csvParser_fileToPreprocess.getRecords();
 
             if (fastRun) {
-                initFastRun(pathToFileWithQualiaRolesForQuery);
+                initFastRun();
             }
 
             int idCnt = 0;
@@ -103,7 +128,7 @@ public class PreprocessText {
     }
 
 
-    private void initFastRun (Path pathToFileWithQualiaRolesForQuery) {
+    private void initFastRun () {
         CSVParser csvParser_patternAndRoles = readCSVFile(pathToFileWithQualiaRolesForQuery);
         for (CSVRecord csvRecord : Objects.requireNonNull(csvParser_patternAndRoles)) {
             String[] tokens = csvRecord.get("pattern").split("\\s+");

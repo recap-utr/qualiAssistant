@@ -16,11 +16,6 @@ import java.nio.file.Paths;
 public class Main {
 
 
-    private static final QualiaIdentifier QUALIA_IDENTIFIER = new QualiaIdentifier();
-    private static final PreprocessText PREPROCESS_TEXT = new PreprocessText();
-
-
-
     public static void main(String[] args) {
         executeQualiaStructuresAppWithJSON(args[0]);
     }
@@ -33,10 +28,10 @@ public class Main {
             JsonNode root = objectMapper.readTree(Files.readString(Path.of(filename)));
 
             String version = root.get("version").asText();
-            String requestedVersion = "1.0.0";
+            String requestedVersion = "1.0.1";
             qualiAssistantVersionCheck(version, requestedVersion);
 
-            Path pathToPatternAndRoles = Path.of(root.get("patternAndRoles").asText());
+            Path pathToQualiaPatternsFile = Path.of(root.get("qualiaPatternsFile").asText());
 
             String language = root.get("language").asText();
             LanguageManager languageManager = new LanguageManager(language);
@@ -54,13 +49,16 @@ public class Main {
                 String columnWithTextToProceed = node_datasetPreparation.get("columnWithTextToProceed").asText();
                 boolean onlyWithSignalWords = node_datasetPreparation.get("onlyWithSignalWords").asBoolean();
 
-                PREPROCESS_TEXT.preprocessTextForQualiaSearch(
+
+                PreprocessText preprocessText = new PreprocessText(
                         new File(String.valueOf(pathToFileToPreprocess)),
                         columnWithTextToProceed,
                         onlyWithSignalWords,
-                        pathToPatternAndRoles,
+                        pathToQualiaPatternsFile,
                         new File(String.valueOf(pathToFilePreprocessed)),
                         languageManager);
+
+                preprocessText.preprocessTextForQualiaSearch();
             }
 
             if (processQuery) {
@@ -69,14 +67,15 @@ public class Main {
                 Path pathToFileWithOutput = Paths.get(node_queryProcessing.get("outputDirectory").asText(), pathToFilePreprocessed.getFileName().toString().replace(".csv", "_withQualiaRolesForQuery.csv"));
                 boolean useStemming = node_queryProcessing.get("useStemming").asBoolean();
 
-                QUALIA_IDENTIFIER.computeQualiaStructures(
+                QualiaIdentifier QUALIA_IDENTIFIER = new QualiaIdentifier(
                         new File(String.valueOf(pathToFilePreprocessed)),
-                        pathToPatternAndRoles,
+                        pathToQualiaPatternsFile,
                         reduceSearchToQuery,
                         useStemming,
                         pathToFileWithOutput,
                         languageManager,
                         deepSearch);
+                QUALIA_IDENTIFIER.computeQualiaStructures();
             }
 
         } catch (IOException e) {
@@ -87,7 +86,7 @@ public class Main {
 
     private static void qualiAssistantVersionCheck(String versionInSpecification, String requestedVersion) {
         if (!versionInSpecification.equals(requestedVersion)) {
-            System.err.println("The required qualia structure app version should " + requestedVersion + " but is " + versionInSpecification + " instead.");
+            System.err.println("The required qualia structure app version should be " + requestedVersion + " but is " + versionInSpecification + " instead.");
             System.exit(0);
         }
     }

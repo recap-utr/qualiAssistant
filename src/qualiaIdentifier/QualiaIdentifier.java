@@ -27,23 +27,43 @@ public class QualiaIdentifier {
     private static final int NUMBER_OF_SKIP_SPACES = 1;
     private static final char SKIP_CHARACTER = ' ';
 
-
     private static final Pattern regexQuery = Pattern.compile("<query>(.*?)</query>");
     private static final Pattern regexQualia = Pattern.compile("<qualia>(.*?)</qualia>");
     private static final Pattern regexPOS_TAG_TERM = Pattern.compile("(.*)/(.+).*?");
 
 
-    public void computeQualiaStructures(
-            File selectedFile_preprocessedFile,
-            Path pathToPatternAndRoles,
-            String query,
-            boolean useStemming,
-            Path pathToFileWithQualiaRolesForQuery,
-            LanguageManager languageManager,
-            boolean enableDeepSearch) {
+    File selectedFile_preprocessedFile;
+    Path pathToPatternAndRoles;
+    String query;
+    boolean useStemming;
+    Path pathToFileWithQualiaRolesForQuery;
+    LanguageManager languageManager;
+    boolean enableDeepSearch;
+
+
+public QualiaIdentifier (
+        File selectedFile_preprocessedFile,
+        Path pathToPatternAndRoles,
+        String query,
+        boolean useStemming,
+        Path pathToFileWithQualiaRolesForQuery,
+        LanguageManager languageManager,
+        boolean enableDeepSearch) {
+
+        this.selectedFile_preprocessedFile = selectedFile_preprocessedFile;
+        this.pathToPatternAndRoles = pathToPatternAndRoles;
+        this.query = query;
+        this.useStemming = useStemming;
+        this.pathToFileWithQualiaRolesForQuery = pathToFileWithQualiaRolesForQuery;
+        this.languageManager = languageManager;
+        this.enableDeepSearch = enableDeepSearch;
+    }
+
+
+    public void computeQualiaStructures() {
         try {
             CSVParser csvParser_patternAndRoles = Objects.requireNonNull(readCSVFile(pathToPatternAndRoles));
-            List<PatternAndRole> patternAndRoles = getPatternAndRoles(csvParser_patternAndRoles);
+            List<QualiaPattern> qualiaPatterns = getQualiaPatterns(csvParser_patternAndRoles);
             csvParser_patternAndRoles.close();
 
             CSVParser csvParser_preprocessedFile = readCSVFile(Paths.get(String.valueOf(selectedFile_preprocessedFile)));
@@ -72,7 +92,7 @@ public class QualiaIdentifier {
 
             List<String> queryTerms = new ArrayList<>();
             if (query != null && !query.trim().isEmpty()) {
-                queryTerms = getTerms(query, languageManager, useStemming);
+                queryTerms = getTerms(query);
             }
 
             for (CSVRecord csvRecord : csvParser_preprocessedFile) {
@@ -82,14 +102,14 @@ public class QualiaIdentifier {
                 String constituencyTreeString = csvRecord.get("constituency_tree");
                 POSNode constituencyTree = getTreeStructure(constituencyTreeString.substring(1, constituencyTreeString.length()-1));
 
-                List<String> extractedSentenceTerms = getTerms(csvRecord.get("extractedSentence"), languageManager, useStemming);
+                List<String> extractedSentenceTerms = getTerms(csvRecord.get("extractedSentence"));
                 if ((query != null && !query.trim().isEmpty()) && !extractedSentenceTerms.containsAll(queryTerms)) {
                     continue;
                 }
 
-                for (PatternAndRole patternAndRole : patternAndRoles) {
+                for (QualiaPattern qualiaPattern : qualiaPatterns) {
 
-                    List<List<PatternMatch>> listOfPatternMatchingInformation = getMatchesWithRequiredPOSSequences(constituencyTree, patternAndRole, enableDeepSearch);
+                    List<List<PatternMatch>> listOfPatternMatchingInformation = getMatchesWithRequiredPOSSequences(constituencyTree, qualiaPattern);
                     if (listOfPatternMatchingInformation.isEmpty()) {
                         continue;
                     }
@@ -114,9 +134,9 @@ public class QualiaIdentifier {
                                 foundQualia = matcherQualia.group(1);
                             }
 
-                            csvEntry.add(patternAndRole.role);
-                            csvEntry.add(patternAndRole.inputPattern_withTags);
-                            csvEntry.add(patternAndRole.inputPattern);
+                            csvEntry.add(qualiaPattern.role);
+                            csvEntry.add(qualiaPattern.inputPattern_withTags);
+                            csvEntry.add(qualiaPattern.inputPattern);
                             csvEntry.add(patternMatch.immutableMatchingPattern_withTags);
                             csvEntry.add(patternMatch.immutableMatchingPattern);
                             csvEntry.add(patternMatch.onlyLeafsOfImmutableMatchingPattern_withTags);
@@ -128,7 +148,7 @@ public class QualiaIdentifier {
 
                             List<String> foundQueryTerms = new ArrayList<>();
                             if (query != null && !query.trim().isEmpty()) {
-                                foundQueryTerms = getTerms(foundQuery, languageManager, useStemming);
+                                foundQueryTerms = getTerms(foundQuery);
                             }
 
                             if (query != null && !query.trim().isEmpty() && !foundQueryTerms.containsAll(queryTerms)) {
@@ -136,11 +156,11 @@ public class QualiaIdentifier {
                             } else if (foundQuery.isEmpty() || foundQualia.isEmpty()) {
                                 continue;
                             } else if (uniqueQualiaQueryPairForSentenceSet.contains(
-                                    getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, patternAndRole.role))) {
+                                    getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, qualiaPattern.role))) {
                                 continue;
                             }
 
-                            uniqueQualiaQueryPairForSentenceSet.add(getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, patternAndRole.role));
+                            uniqueQualiaQueryPairForSentenceSet.add(getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, qualiaPattern.role));
                             csvPrinter.printRecord(csvEntry.toArray(new Object[0]));
                         }
                     }
@@ -156,8 +176,8 @@ public class QualiaIdentifier {
         }
     }
 
-    private String getUniqueQualiaQueryRolePatternEntry (String sentenceId, String query, String qualia, String role) {
-        return sentenceId + "$" + query + "$" + qualia + "$" + role;
+    private String getUniqueQualiaQueryRolePatternEntry (String sentenceId, String foundQuery, String foundQualia, String role) {
+        return sentenceId + "$" + foundQuery + "$" + foundQualia + "$" + role;
     }
 
     private String addQueryAndQualiaToFoundPattern(String patternWithQueryAndQualia, String foundPattern) {
@@ -215,7 +235,7 @@ public class QualiaIdentifier {
     }
 
 
-    private List<String> getTerms(String stringToExtractTerms, LanguageManager languageManager, boolean useStemming) {
+    private List<String> getTerms(String stringToExtractTerms) {
         List<String> terms = new ArrayList<>();
         CoreDocument coreDocument = new CoreDocument(stringToExtractTerms);
         languageManager.getSentenceSplitting_pipeline().annotate(coreDocument);
@@ -236,30 +256,29 @@ public class QualiaIdentifier {
         return terms;
     }
 
-    private List<PatternAndRole> getPatternAndRoles(CSVParser csvParser_patternAndRoles) {
-        List<PatternAndRole> patternAndRoles = new ArrayList<>();
+    private List<QualiaPattern> getQualiaPatterns(CSVParser csvParser_patternAndRoles) {
+        List<QualiaPattern> qualiaPatterns = new ArrayList<>();
         for (CSVRecord csvRecord_patternAndRoles : csvParser_patternAndRoles) {
-            patternAndRoles.add(
-                    new PatternAndRole(
+            qualiaPatterns.add(
+                    new QualiaPattern(
                             csvRecord_patternAndRoles.get("role"),
                             csvRecord_patternAndRoles.get("pattern").replaceAll("<.*?>", ""),
                             csvRecord_patternAndRoles.get("pattern")
                     )
             );
         }
-        return patternAndRoles;
+        return qualiaPatterns;
     }
 
     private List<List<PatternMatch>> getMatchesWithRequiredPOSSequences(
             POSNode constituencyTree,
-            PatternAndRole patternAndRole,
-            boolean enableDeepSearch) {
+            QualiaPattern qualiaPattern) {
 
-        List<List<POSNode>> listOfSubGraphsWithoutLeafs = findMatchingSubGraphsWithoutLeafs(constituencyTree, patternAndRole.listOfPossiblePOSSequences, enableDeepSearch);
-        List<List<PatternMatch>> listOfPatternMatchesWithoutLeafs = getListOfPatternMatchesWithoutLeafs(listOfSubGraphsWithoutLeafs, patternAndRole.inputPattern_withTags);
+        List<List<POSNode>> listOfSubGraphsWithoutLeafs = findMatchingSubGraphsWithoutLeafs(constituencyTree, qualiaPattern.listOfPossiblePOSSequences);
+        List<List<PatternMatch>> listOfPatternMatchesWithoutLeafs = getListOfPatternMatchesWithoutLeafs(listOfSubGraphsWithoutLeafs, qualiaPattern.inputPattern_withTags);
 
-        List<List<POSNode>> listOfMatchingLeafs = findMatchingLeafs(constituencyTree, patternAndRole.listOfPossiblePOSSequences);
-        List<List<PatternMatch>> listOfPatternMatchesOnlyLeafs = getListOfPatternMatchesOnlyLeafs(listOfMatchingLeafs, patternAndRole.listOfPossiblePOSSequences_withTags);
+        List<List<POSNode>> listOfMatchingLeafs = findMatchingLeafs(constituencyTree, qualiaPattern.listOfPossiblePOSSequences);
+        List<List<PatternMatch>> listOfPatternMatchesOnlyLeafs = getListOfPatternMatchesOnlyLeafs(listOfMatchingLeafs, qualiaPattern.listOfPossiblePOSSequences_withTags);
 
         List<List<PatternMatch>> listOfPatternMatches = new ArrayList<>();
         listOfPatternMatches.addAll(listOfPatternMatchesWithoutLeafs);
@@ -345,7 +364,7 @@ public class QualiaIdentifier {
     }
 
 
-    private List<List<POSNode>> findMatchingSubGraphsWithoutLeafs(POSNode root, List<List<String>> listOfPossiblePOSSequences, boolean enableDeepSearch) {
+    private List<List<POSNode>> findMatchingSubGraphsWithoutLeafs(POSNode root, List<List<String>> listOfPossiblePOSSequences) {
         List<List<POSNode>> listOfSubGraphsWithoutLeafs = new ArrayList<>();
 
         for (List<String> possiblePOSSequence : listOfPossiblePOSSequences) {

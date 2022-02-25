@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class PatternAndRole {
+public class QualiaPattern {
 
     private static final String EMPTY_POS_TAG = String.valueOf(UUID.nameUUIDFromBytes("QualiAssistant".getBytes(StandardCharsets.UTF_8)));
 
@@ -18,18 +19,19 @@ public class PatternAndRole {
     List<List<String>> listOfPossiblePOSSequences_withTags;
     List<List<String>> listOfPossiblePOSSequences;
 
-    public PatternAndRole (String role, String inputPattern, String inputPattern_withTags) {
+
+    public QualiaPattern(String role, String inputPattern, String inputPattern_withTags) {
         this.role = role;
         this.inputPattern = inputPattern;
         this.inputPattern_withTags = inputPattern_withTags;
 
         List<List<String>> possiblePOSSequencesInOneList_withTags = parseEnteredRequiredPOSSequence(inputPattern_withTags);
-        this.listOfPossiblePOSSequences_withTags = extractListWithPossiblePOSSequences(possiblePOSSequencesInOneList_withTags);
+        this.listOfPossiblePOSSequences_withTags = extractListWithPossiblePOSSequences(possiblePOSSequencesInOneList_withTags).stream().distinct().collect(Collectors.toList());
+
 
         List<List<String>> possiblePOSSequencesInOneList = parseEnteredRequiredPOSSequence(inputPattern);
-        this.listOfPossiblePOSSequences = extractListWithPossiblePOSSequences(possiblePOSSequencesInOneList);
+        this.listOfPossiblePOSSequences = extractListWithPossiblePOSSequences(possiblePOSSequencesInOneList).stream().distinct().collect(Collectors.toList());
     }
-
 
 
     private List<List<String>> parseEnteredRequiredPOSSequence (String requiredPOSSequence) {
