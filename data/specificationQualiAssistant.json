@@ -1,21 +1,21 @@
 {
-    "version": "1.0.0",
-    "patternAndRoles": "/home/user/QualiAssistant/patternAndRoles_German.csv",
+    "version": "1.1.0",
+    "qualiaPatternsFile": "/home/dumani/qualia/qualiaPatterns_German.csv",
     "language": "german",
+    "enableParallelization": true,
 
     "datasetPreparation": {
         "prepareFile": false,
-        "fileToPreprocess": "/home/user/QualiAssistant/offenesParlament/offenesParlament.csv",
-        "columnWithTextToProceed": "text",
-        "onlyWithSignalWords": true
+        "fileToPreprocess": "/home/dumani/qualia/offenesParlament.csv",
+        "columnWithTextToProceed": "text"
     },
 
     "queryProcessing": {
         "processQuery": true,
-        "filePreprocessed": "/home/user/QualiAssistant/offenesParlament/offenesParlament_preprocessed.csv",
-        "reduceSearchToQuery": "",
+        "filePreprocessed": "/home/dumani/qualia/offenesParlament_preprocessed.csv",
+        "reduceSearchToQueries": ["Abhängigkeit", "Abtreibung", "Alleinerziehende", "Arbeit", "Arbeitslosigkeit", "Armut", "Atomenergie", "Atomkraftwerk", "Bauern", "Bildung", "Bildungspolitik", "Bundeswehr", "Deutschland", "Drogen", "Familie", "Finanzierung", "Gehalt", "Gesellschaft", "Gesundheit", "Haus", "Innenpolitik", "Kinder", "Klima", "Klimaschutz", "Krankenkassen", "Krankheit", "Legalisierung", "Lohn", "Medikamente", "Mensch", "Merkel", "Migration", "Mutter", "Politik", "Polizei", "Rente", "Resozialisierung", "Schule", "Sicherheit", "Solarenergie", "Terror", "Vater", "Verdienst", "Versicherung", "Weihnachten", "Weisheit", "Wetter", "Windenergie", "Wirtschaft", "Wolf", "Wohnung"],
         "deepSearch": true,
         "useStemming": true,
-        "outputDirectory": "/home/user/QualiAssistant/queries_with_results"
+        "outputDirectory": "/home/dumani/qualia/queries_with_results"
     }
 }

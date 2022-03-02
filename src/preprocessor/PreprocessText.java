@@ -16,44 +16,40 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static utils.CSVFiles.defaultCSVFormat;
 import static utils.CSVFiles.readCSVFile;
 
 public class PreprocessText {
 
-    private static final Pattern regex_signalWords = Pattern.compile("\\(??([A-Z]+)/(.[a-zA-Z0-9]+)\\)?");
-    private static final List<String> signalWords = new ArrayList<>();
-
+    private static int sentenceIdCounter = 0;
 
     File selectedFileToPreprocess;
     String columnNameInCSVFileWithTextToProceed;
-    boolean fastRun;
     Path pathToFileWithQualiaRolesForQuery;
     File pathToFilePreprocessed;
     LanguageManager languageManager;
+    boolean enableParallelization;
 
 
     public PreprocessText (
             File selectedFileToPreprocess,
             String columnNameInCSVFileWithTextToProceed,
-            boolean fastRun,
             Path pathToFileWithQualiaRolesForQuery,
             File pathToFilePreprocessed,
-            LanguageManager languageManager) {
+            LanguageManager languageManager,
+            boolean enableParallelization) {
 
         this.selectedFileToPreprocess = selectedFileToPreprocess;
         this.columnNameInCSVFileWithTextToProceed = columnNameInCSVFileWithTextToProceed;
-        this.fastRun = fastRun;
         this.pathToFileWithQualiaRolesForQuery = pathToFileWithQualiaRolesForQuery;
         this.pathToFilePreprocessed = pathToFilePreprocessed;
         this.languageManager = languageManager;
+        this.enableParallelization = enableParallelization;
     }
 
 
-    public void preprocessTextForQualiaSearch() {
+    public void preprocessTextForQualiaSearch () {
         try {
             CSVParser csvParser_fileToPreprocess = readCSVFile(Paths.get(String.valueOf(selectedFileToPreprocess)));
             List<String> headerOld = Objects.requireNonNull(csvParser_fileToPreprocess).getHeaderNames();
@@ -75,50 +71,47 @@ public class PreprocessText {
 
             List<CSVRecord> csvRecords = csvParser_fileToPreprocess.getRecords();
 
-            if (fastRun) {
-                initFastRun();
+            List<List<Object>> csvEntries = new ArrayList<>();
+            int csvRecordId = 0;
+            int maximumNumberOfThreads = Runtime.getRuntime().availableProcessors() * 10;  // TODO: what is a good number of threads?
+            Stack<Integer> availableThreads = new Stack<>();
+            for (int i=0; i<maximumNumberOfThreads; i++) {
+                availableThreads.add(i);
             }
 
-            int idCnt = 0;
             for (CSVRecord csvRecord : csvRecords) {
-
-                String plainText = csvRecord.get(columnNameInCSVFileWithTextToProceed);
-
-                List<String> sentences = POSTools.getSentences(plainText, languageManager);
-                for (String sentence : sentences) {
-
-                    if (fastRun && !plainTextContainsAtLeaseOneSignalWord(plainText)) {
-                        continue;
+                if (enableParallelization) {
+                    while (true) {
+                        if (availableThreads.isEmpty()) {
+                            Thread.sleep(1000);
+                        } else {
+                            int freeThreadPosition = availableThreads.pop();
+                            List<List<Object>> finalCsvEntries = csvEntries;
+                            new Thread(() -> processCSVRecord(headerOld, csvRecord, finalCsvEntries, availableThreads, freeThreadPosition)).start();
+                            break;
+                        }
                     }
-
-                    CoreDocument document = languageManager.getPosTagging_pipeline().processToCoreDocument(sentence);
-                    List<Tree> constituencyTrees = new LinkedList<>();
-                    for (CoreSentence coreSentence : document.sentences()) {
-                        constituencyTrees.add(coreSentence.constituencyParse());
-                    }
-
-                    List<Object> csvEntry = new ArrayList<>();
-                    for (String column : headerOld) {
-                        csvEntry.add(csvRecord.get(column));
-                    }
-
-                    csvEntry.add(++idCnt);
-                    csvEntry.add(sentence);
-                    csvEntry.add(constituencyTrees);
-                    csvEntry.add(POSTools.getPennStrings(constituencyTrees));
-
-                    csvPrinter.printRecord(csvEntry.toArray(new Object[0]));
+                } else {
+                    processCSVRecord(headerOld, csvRecord, csvEntries, availableThreads, 0);
                 }
 
-                if (++idCnt % 100000 == 0) {
-                    csvPrinter.flush();
+                if (++csvRecordId % 1000000 == 0) {
+                    while (availableThreads.size() < maximumNumberOfThreads) {
+                        Thread.sleep(1000);
+                    }
+                    csvPrinter.printRecords(csvEntries.toArray(new Object[0]));
+                    csvEntries = new ArrayList<>();
                 }
             }
 
+            while (availableThreads.size() < maximumNumberOfThreads) {
+                Thread.sleep(1000);
+            }
+            csvPrinter.printRecords(csvEntries.toArray(new Object[0]));
             csvPrinter.flush();
             csvPrinter.close();
 
-            System.err.println("The preprocessing is completed. " + idCnt + " sentences were processed.");
+            System.err.println("The preprocessing is completed. " + sentenceIdCounter + " sentences were processed.");
 
             csvParser_fileToPreprocess.close();
 
@@ -128,31 +121,39 @@ public class PreprocessText {
     }
 
 
-    private void initFastRun () {
-        CSVParser csvParser_patternAndRoles = readCSVFile(pathToFileWithQualiaRolesForQuery);
-        for (CSVRecord csvRecord : Objects.requireNonNull(csvParser_patternAndRoles)) {
-            String[] tokens = csvRecord.get("pattern").split("\\s+");
-            for (String token : tokens) {
-                if (!token.contains("<qualia>") && !token.contains("query") && token.contains("/")) {
-                    Matcher matcher = regex_signalWords.matcher(token);
-                    if (matcher.find()) {
-                        signalWords.add(matcher.group(2));
-                    }
+    private void processCSVRecord (List<String> headerOld, CSVRecord csvRecord, List<List<Object>> csvEntries, Stack<Integer> availableThreads, int freeThreadPosition) {
+
+        try {
+            String plainText = csvRecord.get(columnNameInCSVFileWithTextToProceed);
+            List<String> sentences = POSTools.getSentences(plainText, languageManager);
+            for (String sentence : sentences) {
+
+                List<Object> csvEntry = new ArrayList<>();
+                List<Tree> constituencyTrees = new LinkedList<>();
+
+                CoreDocument document = languageManager.getPosTagging_pipeline().processToCoreDocument(sentence);
+                for (CoreSentence coreSentence : document.sentences()) {
+                    constituencyTrees.add(coreSentence.constituencyParse());
                 }
+
+                for (String column : headerOld) {
+                    csvEntry.add(csvRecord.get(column));
+                }
+
+                csvEntry.add(++sentenceIdCounter);
+                csvEntry.add(sentence);
+                csvEntry.add(constituencyTrees);
+                csvEntry.add(POSTools.getPennStrings(constituencyTrees));
+
+                csvEntries.add(csvEntry);
             }
+
+            if (enableParallelization) {
+                availableThreads.add(freeThreadPosition);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-
-
-    public boolean plainTextContainsAtLeaseOneSignalWord (String plainText) {
-
-        for (String signalWord : signalWords) {
-            if (plainText.contains(signalWord)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
 }

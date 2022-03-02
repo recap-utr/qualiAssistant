@@ -33,38 +33,41 @@ public class QualiaIdentifier {
 
 
     File selectedFile_preprocessedFile;
-    Path pathToPatternAndRoles;
+    Path pathToQualiaPatterns;
     String query;
     boolean useStemming;
     Path pathToFileWithQualiaRolesForQuery;
     LanguageManager languageManager;
     boolean enableDeepSearch;
+    boolean enableParallelization;
 
 
 public QualiaIdentifier (
         File selectedFile_preprocessedFile,
-        Path pathToPatternAndRoles,
+        Path pathToQualiaPatterns,
         String query,
         boolean useStemming,
         Path pathToFileWithQualiaRolesForQuery,
         LanguageManager languageManager,
-        boolean enableDeepSearch) {
+        boolean enableDeepSearch,
+        boolean enableParallelization) {
 
         this.selectedFile_preprocessedFile = selectedFile_preprocessedFile;
-        this.pathToPatternAndRoles = pathToPatternAndRoles;
+        this.pathToQualiaPatterns = pathToQualiaPatterns;
         this.query = query;
         this.useStemming = useStemming;
         this.pathToFileWithQualiaRolesForQuery = pathToFileWithQualiaRolesForQuery;
         this.languageManager = languageManager;
         this.enableDeepSearch = enableDeepSearch;
+        this.enableParallelization = enableParallelization;
     }
 
 
     public void computeQualiaStructures() {
         try {
-            CSVParser csvParser_patternAndRoles = Objects.requireNonNull(readCSVFile(pathToPatternAndRoles));
-            List<QualiaPattern> qualiaPatterns = getQualiaPatterns(csvParser_patternAndRoles);
-            csvParser_patternAndRoles.close();
+            CSVParser csvParser_qualiaPatterns = Objects.requireNonNull(readCSVFile(pathToQualiaPatterns));
+            List<QualiaPattern> qualiaPatterns = getQualiaPatterns(csvParser_qualiaPatterns);
+            csvParser_qualiaPatterns.close();
 
             CSVParser csvParser_preprocessedFile = readCSVFile(Paths.get(String.valueOf(selectedFile_preprocessedFile)));
             List<String> headerOld = Objects.requireNonNull(csvParser_preprocessedFile).getHeaderNames();
@@ -92,87 +95,120 @@ public QualiaIdentifier (
 
             List<String> queryTerms = new ArrayList<>();
             if (query != null && !query.trim().isEmpty()) {
-                queryTerms = getTerms(query);
+                queryTerms = getTerms(query, languageManager);
             }
+
+            int maximumNumberOfThreads = Runtime.getRuntime().availableProcessors() * 10;  // TODO: what is a good number of threads?
+            Stack<Integer> availableThreads = new Stack<>();
+            LanguageManager[] languageManagers = new LanguageManager[maximumNumberOfThreads];
+            for (int i=0; i<maximumNumberOfThreads; i++) {
+                languageManagers[i] = new LanguageManager(languageManager.getLanguage());
+                availableThreads.add(i);
+            }
+
+            List<List<Object>> csvEntries = new ArrayList<>();
 
             for (CSVRecord csvRecord : csvParser_preprocessedFile) {
 
-                Set<String> uniqueQualiaQueryPairForSentenceSet = new HashSet<>();
-
-                String constituencyTreeString = csvRecord.get("constituency_tree");
-                POSNode constituencyTree = getTreeStructure(constituencyTreeString.substring(1, constituencyTreeString.length()-1));
-
-                List<String> extractedSentenceTerms = getTerms(csvRecord.get("extractedSentence"));
+                List<String> extractedSentenceTerms = getTerms(csvRecord.get("extractedSentence"), languageManager);
                 if ((query != null && !query.trim().isEmpty()) && !extractedSentenceTerms.containsAll(queryTerms)) {
                     continue;
                 }
 
-                for (QualiaPattern qualiaPattern : qualiaPatterns) {
-
-                    List<List<PatternMatch>> listOfPatternMatchingInformation = getMatchesWithRequiredPOSSequences(constituencyTree, qualiaPattern);
-                    if (listOfPatternMatchingInformation.isEmpty()) {
-                        continue;
-                    }
-
-                    for (List<PatternMatch> patternMatches : listOfPatternMatchingInformation) {
-
-                        for (PatternMatch patternMatch : patternMatches) {
-                            List<Object> csvEntry = new ArrayList<>();
-                            for (String column : headerOld) {
-                                csvEntry.add(csvRecord.get(column));
-                            }
-
-                            String foundQuery = "";
-                            Matcher matcherQuery = regexQuery.matcher(patternMatch.subSentenceMatchingPattern_withTags);
-                            if (matcherQuery.find()) {
-                                foundQuery = matcherQuery.group(1);
-                            }
-
-                            String foundQualia = "";
-                            Matcher matcherQualia = regexQualia.matcher(patternMatch.subSentenceMatchingPattern_withTags);
-                            if (matcherQualia.find()) {
-                                foundQualia = matcherQualia.group(1);
-                            }
-
-                            csvEntry.add(qualiaPattern.role);
-                            csvEntry.add(qualiaPattern.inputPattern_withTags);
-                            csvEntry.add(qualiaPattern.inputPattern);
-                            csvEntry.add(patternMatch.immutableMatchingPattern_withTags);
-                            csvEntry.add(patternMatch.immutableMatchingPattern);
-                            csvEntry.add(patternMatch.onlyLeafsOfImmutableMatchingPattern_withTags);
-                            csvEntry.add(patternMatch.onlyLeafsOfImmutableMatchingPattern);
-                            csvEntry.add(patternMatch.subSentenceMatchingPattern_withTags);
-                            csvEntry.add(patternMatch.subSentenceMatchingPattern);
-                            csvEntry.add(foundQuery);
-                            csvEntry.add(foundQualia);
-
-                            List<String> foundQueryTerms = new ArrayList<>();
-                            if (query != null && !query.trim().isEmpty()) {
-                                foundQueryTerms = getTerms(foundQuery);
-                            }
-
-                            if (query != null && !query.trim().isEmpty() && !foundQueryTerms.containsAll(queryTerms)) {
-                                continue;
-                            } else if (foundQuery.isEmpty() || foundQualia.isEmpty()) {
-                                continue;
-                            } else if (uniqueQualiaQueryPairForSentenceSet.contains(
-                                    getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, qualiaPattern.role))) {
-                                continue;
-                            }
-
-                            uniqueQualiaQueryPairForSentenceSet.add(getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, qualiaPattern.role));
-                            csvPrinter.printRecord(csvEntry.toArray(new Object[0]));
+                if (enableParallelization) {
+                    while (true) {
+                        if (availableThreads.isEmpty()) {
+                            Thread.sleep(1000);
+                        } else {
+                            int freeThreadPosition = availableThreads.pop();
+                            List<String> finalQueryTerms = queryTerms;
+                            new Thread(() -> processCSVRecord(qualiaPatterns, headerOld, finalQueryTerms, csvEntries, csvRecord, languageManagers[freeThreadPosition], availableThreads, freeThreadPosition)).start();
+                            break;
                         }
                     }
-
+                } else {
+                    processCSVRecord(qualiaPatterns, headerOld, queryTerms, csvEntries, csvRecord, languageManager, availableThreads, 0);
                 }
+
             }
 
+            while (availableThreads.size() < maximumNumberOfThreads) {
+                Thread.sleep(1000);
+            }
+
+            csvPrinter.printRecords(csvEntries.toArray(new Object[0]));
             csvPrinter.flush();
             csvPrinter.close();
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void processCSVRecord (List<QualiaPattern> qualiaPatterns, List<String> headerOld, List<String> queryTerms, List<List<Object>> csvEntries, CSVRecord csvRecord, LanguageManager languageManager, Stack<Integer> availableThreads, int freeThreadPosition) {
+
+        Set<String> uniqueQualiaQueryPairForSentenceSet = new HashSet<>();
+
+        String constituencyTreeString = csvRecord.get("constituency_tree");
+        POSNode constituencyTree = getTreeStructure(constituencyTreeString.substring(1, constituencyTreeString.length()-1));
+
+        for (QualiaPattern qualiaPattern : qualiaPatterns) {
+
+            List<List<PatternMatch>> listOfPatternMatchingInformation = getMatchesWithRequiredPOSSequences(constituencyTree, qualiaPattern);
+            for (List<PatternMatch> patternMatches : listOfPatternMatchingInformation) {
+
+                for (PatternMatch patternMatch : patternMatches) {
+                    List<Object> csvEntry = new ArrayList<>();
+                    for (String column : headerOld) {
+                        csvEntry.add(csvRecord.get(column));
+                    }
+
+                    String foundQuery = "";
+                    Matcher matcherQuery = regexQuery.matcher(patternMatch.subSentenceMatchingPattern_withTags);
+                    if (matcherQuery.find()) {
+                        foundQuery = matcherQuery.group(1);
+                    }
+
+                    String foundQualia = "";
+                    Matcher matcherQualia = regexQualia.matcher(patternMatch.subSentenceMatchingPattern_withTags);
+                    if (matcherQualia.find()) {
+                        foundQualia = matcherQualia.group(1);
+                    }
+
+                    csvEntry.add(qualiaPattern.role);
+                    csvEntry.add(qualiaPattern.inputPattern_withTags);
+                    csvEntry.add(qualiaPattern.inputPattern);
+                    csvEntry.add(patternMatch.immutableMatchingPattern_withTags);
+                    csvEntry.add(patternMatch.immutableMatchingPattern);
+                    csvEntry.add(patternMatch.onlyLeafsOfImmutableMatchingPattern_withTags);
+                    csvEntry.add(patternMatch.onlyLeafsOfImmutableMatchingPattern);
+                    csvEntry.add(patternMatch.subSentenceMatchingPattern_withTags);
+                    csvEntry.add(patternMatch.subSentenceMatchingPattern);
+                    csvEntry.add(foundQuery);
+                    csvEntry.add(foundQualia);
+
+                    List<String> foundQueryTerms = new ArrayList<>();
+                    if (query != null && !query.trim().isEmpty()) {
+                        foundQueryTerms = getTerms(foundQuery, languageManager);
+                    }
+
+                    if (query != null && !query.trim().isEmpty() && !foundQueryTerms.containsAll(queryTerms)) {
+                        continue;
+                    } else if (foundQuery.isEmpty() || foundQualia.isEmpty()) {
+                        continue;
+                    } else if (uniqueQualiaQueryPairForSentenceSet.contains(
+                            getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, qualiaPattern.role))) {
+                        continue;
+                    }
+
+                    uniqueQualiaQueryPairForSentenceSet.add(getUniqueQualiaQueryRolePatternEntry(csvRecord.get("sentence_id"), foundQuery, foundQualia, qualiaPattern.role));
+                    csvEntries.add(csvEntry);
+                }
+            }
+        }
+
+        if (enableParallelization) {
+            availableThreads.add(freeThreadPosition);
         }
     }
 
@@ -235,7 +271,7 @@ public QualiaIdentifier (
     }
 
 
-    private List<String> getTerms(String stringToExtractTerms) {
+    private List<String> getTerms(String stringToExtractTerms, LanguageManager languageManager) {
         List<String> terms = new ArrayList<>();
         CoreDocument coreDocument = new CoreDocument(stringToExtractTerms);
         languageManager.getSentenceSplitting_pipeline().annotate(coreDocument);

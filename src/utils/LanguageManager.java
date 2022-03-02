@@ -11,13 +11,15 @@ import java.util.Properties;
 
 public class LanguageManager {
 
-    private static StanfordCoreNLP posTagging_pipeline;
-    private static StanfordCoreNLP sentenceSplitting_pipeline;
-
-    private static SnowballStemmer snowballStemmer;
+    private StanfordCoreNLP posTagging_pipeline;
+    private StanfordCoreNLP sentenceSplitting_pipeline;
+    private SnowballStemmer snowballStemmer;
+    private final String language;
 
 
     public LanguageManager (String language) {
+        this.language = language;
+
         switch (language.toLowerCase(Locale.ROOT)) {
             case "german" -> {
                 // POS tags
@@ -65,4 +67,6 @@ public class LanguageManager {
     public SnowballStemmer getStemmer() {
         return snowballStemmer;
     }
+
+    public String getLanguage() { return language; }
 }
