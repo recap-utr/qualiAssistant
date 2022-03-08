@@ -40,14 +40,15 @@ public class LanguageManager {
             }
             case "english" -> {
                 // POS tags
-                String[] posTagging_args = new String[]{"-props", "StanfordCoreNLP-english.properties",
+                String[] posTagging_args = new String[]{
                         "-encoding", "UTF-8",
-                        "-annotators", "tokenize,ssplit,pos,parse"};
+                        "-annotators",
+                        "tokenize,ssplit,pos,parse"};
                 Properties posTagging_props = StringUtils.argsToProperties(posTagging_args);
                 posTagging_pipeline = new StanfordCoreNLP(posTagging_props);
 
                 // sentence splitting
-                String[] sentenceSplitting_args = new String[]{"-props", "StanfordCoreNLP-english.properties", "-annotators", "tokenize,ssplit"};
+                String[] sentenceSplitting_args = new String[]{"-annotators", "tokenize,ssplit"};
                 Properties sentenceSplitting_props = StringUtils.argsToProperties(sentenceSplitting_args);
                 sentenceSplitting_pipeline = new StanfordCoreNLP(sentenceSplitting_props);
 
