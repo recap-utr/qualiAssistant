@@ -1,0 +1,28 @@
+role;pattern;
+Formal;[<query>[NN,NNS]</query>,NP] VBZ/is DT/a NN/kind IN/of <qualia>[NN,NNS,NP]</qualia>;
+Formal;[<query>[NN,NNS]</query>,NP] VBZ/is <qualia>[NN,NNS,NP]</qualia>;
+Formal;[<query>[NN,NNS]</query>,NP] (PUNCT/,) CC/and JJ/other <qualia>[NN,NNS,NP]</qualia>; zu PUNCT/, konnte ich keine Entsprechung finden
+Formal;[<query>[NN,NNS]</query>,NP] (PUNCT/,) CC/or JJ/other <qualia>[NN,NNS,NP]</qualia>;
+Formal;<qualia>[NN,NNS,NP]</qualia> JJ/such IN/as [<query>[NN,NNS]</query>,NP];
+Formal;<qualia>[NN,NNS,NP]</qualia> RB/especially [<query>[NN,NNS]</query>,NP];
+Formal;<qualia>[NN,NNS,NP]</qualia> VBG/including [<query>[NN,NNS]</query>,NP];
+Constitutive;[<query>[NN,NNS]</query>,NP] VBZ/is VBN/made IN/up IN/of <qualia>[NN,NNS,NP]</qualia>;
+Constitutive;[<query>[NN,NNS]</query>,NP] VBZ/is VBN/made IN/of <qualia>[NN,NNS,NP]</qualia>;
+Constitutive;[<query>[NN,NNS]</query>,NP] VBZ/comprises (IN/of) <qualia>[NN,NNS,NP]</qualia>;
+Constitutive;[<query>[NN,NNS]</query>,NP] VBZ/consists <qualia>[NN,NNS,NP]</qualia>;
+Constitutive;[<query>[NN,NNS]</query>,NP] VBP/are VBN/made IN/up IN/of <qualia>[NN,NNS,NP]</qualia>;
+Constitutive;[<query>[NN,NNS]</query>,NP] VBP/are VBN/made IN/of <qualia>[NN,NNS,NP]</qualia>;
+Constitutive;[<query>[NN,NNS]</query>,NP] VB/comprise (IN/of) <qualia>[NN,NNS,NP]</qualia>;
+Constitutive;[<query>[NN,NNS]</query>,NP] VB/consist <qualia>[NN,NNS,NP]</qualia>;
+Telic;NN/purpose IN/of (DT/a) [<query>[NN,NNS]</query>,NP] VBZ/is (TO) <qualia>[NN,NNS,NP]</qualia>;
+Telic;NN/purpose IN/of (DT/an) [<query>[NN,NNS]</query>,NP] VBZ/is (TO) <qualia>[NN,NNS,NP]</qualia>;
+Telic;(DT/a) [<query>[NN,NNS]</query>,NP] VBZ/is VBN/used TO <qualia>[NN,NNS,NP]</qualia>;
+Telic;(DT/an) [<query>[NN,NNS]</query>,NP] VBZ/is VBN/used TO <qualia>[NN,NNS,NP]</qualia>;
+Telic;(DT/a) [<query>[NN,NNS]</query>,NP] VBP/are VBN/used TO <qualia>[NN,NNS,NP]</qualia>;
+Telic;(DT/an) [<query>[NN,NNS]</query>,NP] VBP/are VBN/used TO <qualia>[NN,NNS,NP]</qualia>;
+Agentive;TO (RB) <qualia>VB</qualia> (DT/a) JJ/new [<query>[NN,NNS]</query>,NP];
+Agentive;TO (RB) <qualia>VB</qualia> (DT/a) JJ/complete [<query>[NN,NNS]</query>,NP];
+Agentive;(DT/a) JJ/new [<query>[NN,NNS]</query>,NP] VBZ/has VBN/been <qualia>VBD</qualia>;
+Agentive;(DT/a) JJ/complete [<query>[NN,NNS]</query>,NP] VBZ/has VBN/been <qualia>VBD</qualia>;
+Agentive;TO (RB) <qualia>VB</qualia> JJ/new [<query>[NN,NNS]</query>,NP];
+Agentive;TO (RB) <qualia>VB</qualia> JJ/complete [<query>[NN,NNS]</query>,NP];
