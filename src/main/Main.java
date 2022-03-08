@@ -73,6 +73,18 @@ public class Main {
                 Path pathToFileWithOutput = Paths.get(node_queryProcessing.get("outputDirectory").asText(), pathToFilePreprocessed.getFileName().toString().replace(".csv", "_withQualiaStructures.csv"));
                 boolean useStemming = node_queryProcessing.get("useStemming").asBoolean();
 
+                if (queries.size() == 0) {
+                    QualiaIdentifier qualiaIdentifier = new QualiaIdentifier(
+                            new File(String.valueOf(pathToFilePreprocessed)),
+                            pathToQualiaPatternsFile,
+                            null,
+                            useStemming,
+                            pathToFileWithOutput,
+                            languageManager,
+                            deepSearch,
+                            enableParallelization);
+                    qualiaIdentifier.computeQualiaStructures();
+                }
                 for (String query : queries) {
                     QualiaIdentifier qualiaIdentifier = new QualiaIdentifier(
                             new File(String.valueOf(pathToFilePreprocessed)),
