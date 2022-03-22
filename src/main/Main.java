@@ -30,7 +30,7 @@ public class Main {
             JsonNode root = objectMapper.readTree(Files.readString(Path.of(filename)));
 
             String version = root.get("version").asText();
-            String requestedVersion = "1.1.0";
+            String requestedVersion = "1.2.0";
             qualiAssistantVersionCheck(version, requestedVersion);
 
             Path pathToQualiaPatternsFile = Path.of(root.get("qualiaPatternsFile").asText());

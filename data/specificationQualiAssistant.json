@@ -1,21 +1,21 @@
 {
-    "version": "1.1.0",
-    "qualiaPatternsFile": "/home/dumani/qualia/qualiaPatterns_German.csv",
+    "version": "1.2.0",
+    "qualiaPatternsFile": "/home/dumani/qualiAssistant/qualiaPatterns_German.csv",
     "language": "german",
     "enableParallelization": true,
 
     "datasetPreparation": {
         "prepareFile": false,
-        "fileToPreprocess": "/home/dumani/qualia/offenesParlament.csv",
+        "fileToPreprocess": "/home/dumani/qualiAssistant/offenesParlament.csv",
         "columnWithTextToProceed": "text"
     },
 
     "queryProcessing": {
         "processQuery": true,
-        "filePreprocessed": "/home/dumani/qualia/offenesParlament_preprocessed.csv",
-        "reduceSearchToQueries": ["Abhängigkeit", "Abtreibung", "Alleinerziehende", "Arbeit", "Arbeitslosigkeit", "Armut", "Atomenergie", "Atomkraftwerk", "Bauern", "Bildung", "Bildungspolitik", "Bundeswehr", "Deutschland", "Drogen", "Familie", "Finanzierung", "Gehalt", "Gesellschaft", "Gesundheit", "Haus", "Innenpolitik", "Kinder", "Klima", "Klimaschutz", "Krankenkassen", "Krankheit", "Legalisierung", "Lohn", "Medikamente", "Mensch", "Merkel", "Migration", "Mutter", "Politik", "Polizei", "Rente", "Resozialisierung", "Schule", "Sicherheit", "Solarenergie", "Terror", "Vater", "Verdienst", "Versicherung", "Weihnachten", "Weisheit", "Wetter", "Windenergie", "Wirtschaft", "Wolf", "Wohnung"],
+        "filePreprocessed": "/home/dumani/qualiAssistant/offenesParlament_preprocessed.csv",
+        "reduceSearchToQueries": ["Abhängigkeit", "Abtreibung", "Alleinerziehende", "Arbeit", "Arbeitslosigkeit", "Armut", "Atomenergie", "Atomkraftwerk", "Bauern", "Bildung", "Bildungspolitik", "Bundeswehr", "Deutschland", "Drogen", "Familie", "Finanzierung", "Gehalt", "Gesellschaft", "Gesundheit", "Haus", "Innenpolitik", "Kinder", "Klima", "Klimaschutz", "Krankenkassen", "Krankheit", "Legalisierung", "Lohn", "Medikamente", "Mensch", "Merkel", "Migration", "Mutter", "Parlament", "Politik", "Polizei", "Rente", "Resozialisierung", "Schule", "Sicherheit", "Solarenergie", "Terror", "Vater", "Verdienst", "Versicherung", "Weihnachten", "Weisheit", "Wetter", "Windenergie", "Wirtschaft", "Wolf", "Wohnung"],
         "deepSearch": true,
         "useStemming": true,
-        "outputDirectory": "/home/dumani/qualia/queries_with_results"
+        "outputDirectory": "/home/dumani/qualiAssistant/queries_with_results"
     }
 }

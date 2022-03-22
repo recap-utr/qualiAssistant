@@ -53,7 +53,7 @@ public class PreprocessText {
         try {
             CSVParser csvParser_fileToPreprocess = readCSVFile(Paths.get(String.valueOf(selectedFileToPreprocess)));
             List<String> headerOld = Objects.requireNonNull(csvParser_fileToPreprocess).getHeaderNames();
-            List<String> headerNewElements = Arrays.asList("sentence_id", "extractedSentence", "constituency_tree", "penn_string");
+            List<String> headerNewElements = Arrays.asList("sentence_id", "extracted_sentence", "constituency_tree", "penn_string");
 
             List<String> headerNew = new ArrayList<>();
             headerNew.addAll(headerOld);

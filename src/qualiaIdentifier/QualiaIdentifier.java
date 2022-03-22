@@ -77,7 +77,7 @@ public QualiaIdentifier (
                     "immutableMatchingPattern_withTags", "immutableMatchingPattern",
                     "onlyLeafsOfImmutableMatchingPattern_withTags", "onlyLeafsOfImmutableMatchingPattern",
                     "subsentenceMatchingPattern_withTags", "subsentenceMatchingPattern",
-                    "query", "qualiaRole");
+                    "query", "expandedQueries", "qualiaRole");
 
             List<String> headerNew = new ArrayList<>();
             headerNew.addAll(headerOld);
@@ -110,7 +110,7 @@ public QualiaIdentifier (
 
             for (CSVRecord csvRecord : csvParser_preprocessedFile) {
 
-                List<String> extractedSentenceTerms = getTerms(csvRecord.get("extractedSentence"), languageManager);
+                List<String> extractedSentenceTerms = getTerms(csvRecord.get("extracted_sentence"), languageManager);
                 if ((query != null && !query.trim().isEmpty()) && !extractedSentenceTerms.containsAll(queryTerms)) {
                     continue;
                 }
@@ -185,6 +185,7 @@ public QualiaIdentifier (
                     csvEntry.add(patternMatch.subSentenceMatchingPattern_withTags);
                     csvEntry.add(patternMatch.subSentenceMatchingPattern);
                     csvEntry.add(foundQuery);
+                    csvEntry.add(patternMatch.expandedQueries);
                     csvEntry.add(foundQualia);
 
                     List<String> foundQueryTerms = new ArrayList<>();
@@ -611,25 +612,26 @@ public QualiaIdentifier (
             List<PatternMatch> listOfPatternMatches = new ArrayList<>();
 
             StringBuilder posRequiredWithRolesSB = new StringBuilder();
-            StringBuilder posRequired = new StringBuilder();
-            StringBuilder posLeafs = new StringBuilder();
-            StringBuilder terms = new StringBuilder();
+            StringBuilder immutableMatchingPattern = new StringBuilder();
+            StringBuilder onlyLeafsOfImmutableMatchingPattern = new StringBuilder();
+            StringBuilder subSentenceMatchingPattern = new StringBuilder();
 
             for (POSNode subGraphWithoutLeafs : subGraphsWithoutLeafs) {
                 posRequiredWithRolesSB.append(subGraphWithoutLeafs.getPOSTag()).append(" ");
             }
-            String posRequiredWithRoles = addQueryAndQualiaToFoundPattern(patternWithQueryAndQualia, String.valueOf(posRequiredWithRolesSB));
-            StringBuilder posRequiredWithLeafsAndRoles = new StringBuilder();
-            String[] posRequiredWithRolesArray = posRequiredWithRoles.split("\\s+");
-            StringBuilder termLeafsWithQueryAndQualia = new StringBuilder();
+            String immutableMatchingPattern_withTags = addQueryAndQualiaToFoundPattern(patternWithQueryAndQualia, String.valueOf(posRequiredWithRolesSB));
+            StringBuilder onlyLeafsOfImmutableMatchingPattern_withTags = new StringBuilder();
+            String[] posRequiredWithRolesArray = immutableMatchingPattern_withTags.split("\\s+");
+            StringBuilder subSentenceMatchingPattern_withTags = new StringBuilder();
             int i = 0;
+            String expandedQueries = "";
 
             for (POSNode node : subGraphsWithoutLeafs) {
                 if (i == posRequiredWithRolesArray.length) {
                     break;
                 }
 
-                posRequired.append(node.getPOSTag()).append(" ");
+                immutableMatchingPattern.append(node.getPOSTag()).append(" ");
 
                 // TODO: refactor duplicate
                 boolean isQuery = false;
@@ -648,19 +650,19 @@ public QualiaIdentifier (
 
                 if (node.getPOSTag().equals(posRequiredWithRolesArray[i])) {
                     if (isQuery) {
-                        if (posRequiredWithLeafsAndRoles.length() > 0 && posRequiredWithLeafsAndRoles.charAt(posRequiredWithLeafsAndRoles.length() - 1) != ' ') {
-                            posRequiredWithLeafsAndRoles.append(" ");
-                            termLeafsWithQueryAndQualia.append(" ");
+                        if (onlyLeafsOfImmutableMatchingPattern_withTags.length() > 0 && onlyLeafsOfImmutableMatchingPattern_withTags.charAt(onlyLeafsOfImmutableMatchingPattern_withTags.length() - 1) != ' ') {
+                            onlyLeafsOfImmutableMatchingPattern_withTags.append(" ");
+                            subSentenceMatchingPattern_withTags.append(" ");
                         }
-                        posRequiredWithLeafsAndRoles.append("<query>");
-                        termLeafsWithQueryAndQualia.append("<query>");
+                        onlyLeafsOfImmutableMatchingPattern_withTags.append("<query>");
+                        subSentenceMatchingPattern_withTags.append("<query>");
                     } else if (isQualia) {
-                        if (posRequiredWithLeafsAndRoles.length() > 0 && posRequiredWithLeafsAndRoles.charAt(posRequiredWithLeafsAndRoles.length() - 1) != ' ') {
-                            posRequiredWithLeafsAndRoles.append(" ");
-                            termLeafsWithQueryAndQualia.append(" ");
+                        if (onlyLeafsOfImmutableMatchingPattern_withTags.length() > 0 && onlyLeafsOfImmutableMatchingPattern_withTags.charAt(onlyLeafsOfImmutableMatchingPattern_withTags.length() - 1) != ' ') {
+                            onlyLeafsOfImmutableMatchingPattern_withTags.append(" ");
+                            subSentenceMatchingPattern_withTags.append(" ");
                         }
-                        posRequiredWithLeafsAndRoles.append("<qualia>");
-                        termLeafsWithQueryAndQualia.append("<qualia>");
+                        onlyLeafsOfImmutableMatchingPattern_withTags.append("<qualia>");
+                        subSentenceMatchingPattern_withTags.append("<qualia>");
                     }
                     i++;
                 }
@@ -670,36 +672,42 @@ public QualiaIdentifier (
                 getPOSNodesAsStack(node, leafs);
                 for (POSNode leaf : leafs) {
                     if (leaf.getTerm() != null) {
-                        posLeafs.append(leaf.getPOSTag()).append(" ");
-                        terms.append(leaf.getTerm()).append(" ");
+                        onlyLeafsOfImmutableMatchingPattern.append(leaf.getPOSTag()).append(" ");
+                        subSentenceMatchingPattern.append(leaf.getTerm()).append(" ");
 
-                        if (posRequiredWithLeafsAndRoles.length() > 0 && posRequiredWithLeafsAndRoles.charAt(posRequiredWithLeafsAndRoles.length() - 1) != ' ' && posRequiredWithLeafsAndRoles.charAt(posRequiredWithLeafsAndRoles.length() - 1) != '>') {
-                            posRequiredWithLeafsAndRoles.append(" ");
-                            termLeafsWithQueryAndQualia.append(" ");
+                        if (onlyLeafsOfImmutableMatchingPattern_withTags.length() > 0 && onlyLeafsOfImmutableMatchingPattern_withTags.charAt(onlyLeafsOfImmutableMatchingPattern_withTags.length() - 1) != ' ' && onlyLeafsOfImmutableMatchingPattern_withTags.charAt(onlyLeafsOfImmutableMatchingPattern_withTags.length() - 1) != '>') {
+                            onlyLeafsOfImmutableMatchingPattern_withTags.append(" ");
+                            subSentenceMatchingPattern_withTags.append(" ");
                         }
-                        posRequiredWithLeafsAndRoles.append(leaf.getPOSTag());
-                        termLeafsWithQueryAndQualia.append(leaf.getTerm());
+                        onlyLeafsOfImmutableMatchingPattern_withTags.append(leaf.getPOSTag());
+                        subSentenceMatchingPattern_withTags.append(leaf.getTerm());
                     }
                 }
 
                 if (isQuery) {
-                    posRequiredWithLeafsAndRoles.append("</query> ");
-                    termLeafsWithQueryAndQualia.append("</query> ");
+                    onlyLeafsOfImmutableMatchingPattern_withTags.append("</query> ");
+                    subSentenceMatchingPattern_withTags.append("</query> ");
                 } else if (isQualia) {
-                    posRequiredWithLeafsAndRoles.append("</qualia> ");
-                    termLeafsWithQueryAndQualia.append("</qualia> ");
+                    onlyLeafsOfImmutableMatchingPattern_withTags.append("</qualia> ");
+                    subSentenceMatchingPattern_withTags.append("</qualia> ");
+                }
+
+                if (isQuery) {
+                    expandedQueries = computeExpandedQuery(String.valueOf(expandedQueries), node);
                 }
             }
 
             listOfPatternMatches.add(
                     new PatternMatch(
-                            posRequiredWithRoles,
-                            posRequired.toString(),
-                            posRequiredWithLeafsAndRoles.toString(),
-                            posLeafs.toString(),
-                            termLeafsWithQueryAndQualia.toString(),
-                            terms.toString()
-                    ));
+                            immutableMatchingPattern_withTags,
+                            immutableMatchingPattern.toString(),
+                            onlyLeafsOfImmutableMatchingPattern_withTags.toString(),
+                            onlyLeafsOfImmutableMatchingPattern.toString(),
+                            subSentenceMatchingPattern_withTags.toString(),
+                            subSentenceMatchingPattern.toString(),
+                            expandedQueries
+                    )
+            );
 
             listOfPatternMatchingInformation.add(listOfPatternMatches);
         }
@@ -713,6 +721,7 @@ public QualiaIdentifier (
         for (List<POSNode> onlyLeafsSequence : listOfOnlyLeafsSequences) {
 
             List<PatternMatch> listOfPatternMatches = new ArrayList<>();
+            String expandedQueries = "";
 
             for (List<String> possiblePOSSequence : listOfPossiblePOSSequences) {
 
@@ -779,6 +788,12 @@ public QualiaIdentifier (
                     }
                 }
 
+                for (POSNode onlyLeafsPosNode : onlyLeafsSequence) {
+                    if (onlyLeafsPosNode.getTerm() != null && onlyLeafsPosNode.getTerm().equals(query)) {
+                        expandedQueries = computeExpandedQuery(String.valueOf(expandedQueries), onlyLeafsPosNode);
+                    }
+                }
+
                 if (match) {
                     listOfPatternMatches.add(
                             new PatternMatch(
@@ -787,15 +802,48 @@ public QualiaIdentifier (
                                     posLeafs_withTags.toString(),
                                     posLeafs.toString(),
                                     terms_withTags.toString(),
-                                    terms.toString()
+                                    terms.toString(),
+                                    expandedQueries.toString()
                             ));
                     listOfListOfPatternMatches.add(listOfPatternMatches);
                 }
-
             }
         }
 
         return listOfListOfPatternMatches;
+    }
+
+    private String computeExpandedQuery(String expandedQueries, POSNode node) {
+        List<POSNode> environmentalNodes = new ArrayList<>();
+        POSNode currentNode = node;
+        while (currentNode.parent != null) {
+            if (currentNode.getPOSTag().equals(languageManager.getQueryEnvironmentDelimiterPOSTag())) {
+                environmentalNodes.add(currentNode);
+            }
+            currentNode = currentNode.parent;
+        }
+
+        StringBuilder expandedQueriesBuilder = new StringBuilder(expandedQueries);
+        for (POSNode environmentalNode : environmentalNodes) {
+            List<POSNode> environmentalLeafs = new ArrayList<>();
+            getPOSNodesAsStack(environmentalNode, environmentalLeafs);
+            StringBuilder expandedQuery = new StringBuilder();
+            for (POSNode posNode : environmentalLeafs) {
+                if (posNode.getTerm() != null) {
+                    if (!expandedQuery.isEmpty()) {
+                        expandedQuery.append(" ");
+                    }
+                    expandedQuery.append(posNode.getTerm());
+                }
+            }
+            if (!expandedQuery.isEmpty()) {
+                if (expandedQueriesBuilder.length() > 0) {
+                    expandedQueriesBuilder.append("\n");
+                }
+                expandedQueriesBuilder.append(expandedQuery);
+            }
+        }
+        return expandedQueriesBuilder.toString();
     }
 
     private void getPOSNodesAsStack(POSNode node, List<POSNode> posNodeList) {
