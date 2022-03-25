@@ -8,10 +8,7 @@ import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import utils.LanguageManager;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -87,7 +84,16 @@ public class PreprocessText {
                         } else {
                             int freeThreadPosition = availableThreads.pop();
                             List<List<Object>> finalCsvEntries = csvEntries;
-                            new Thread(() -> processCSVRecord(headerOld, csvRecord, finalCsvEntries, availableThreads, freeThreadPosition)).start();
+                            Thread t = new Thread(() -> processCSVRecord(headerOld, csvRecord, finalCsvEntries, availableThreads, freeThreadPosition));
+
+                            // https://stackoverflow.com/a/6662631
+                            t.setUncaughtExceptionHandler((t1, e) -> {
+                                System.err.println("Failed to process csv record: " + csvRecord);
+                                e.printStackTrace();
+                                availableThreads.add(freeThreadPosition);
+                            });
+
+                            t.start();
                             break;
                         }
                     }
@@ -96,19 +102,16 @@ public class PreprocessText {
                 }
 
                 if (++csvRecordId % 1000000 == 0) {
-                    while (availableThreads.size() < maximumNumberOfThreads) {
-                        Thread.sleep(1000);
-                    }
-                    csvPrinter.printRecords(csvEntries.toArray(new Object[0]));
+                    printProgress(availableThreads, maximumNumberOfThreads, csvPrinter, csvEntries);
                     csvEntries = new ArrayList<>();
+                }
+
+                if (csvRecordId % 1000 == 0) {
+                    System.err.print("Progress: " + (100d * ((int)(10000*(1d*csvRecordId / csvRecords.size())))/10000) + " %" + "\r");
                 }
             }
 
-            while (availableThreads.size() < maximumNumberOfThreads) {
-                Thread.sleep(1000);
-            }
-            csvPrinter.printRecords(csvEntries.toArray(new Object[0]));
-            csvPrinter.flush();
+            printProgress(availableThreads, maximumNumberOfThreads, csvPrinter, csvEntries);
             csvPrinter.close();
 
             System.err.println("The preprocessing is completed. " + sentenceIdCounter + " sentences were processed.");
@@ -120,14 +123,32 @@ public class PreprocessText {
         }
     }
 
+    private void printProgress(Stack<Integer> availableThreads, int maximumNumberOfThreads, CSVPrinter csvPrinter, List<List<Object>> csvEntries) throws InterruptedException, IOException {
+        while (availableThreads.size() < maximumNumberOfThreads) {
+            Thread.sleep(1000);
+        }
+        csvPrinter.printRecords(csvEntries.toArray(new Object[0]));
+        csvPrinter.flush();
+    }
+
 
     private void processCSVRecord (List<String> headerOld, CSVRecord csvRecord, List<List<Object>> csvEntries, Stack<Integer> availableThreads, int freeThreadPosition) {
 
         try {
+            int MAX_PLAIN_TEXT_LENGTH = 15000;
+            int DELTA = 500;
             String plainText = csvRecord.get(columnNameInCSVFileWithTextToProceed);
-            List<String> sentences = POSTools.getSentences(plainText, languageManager);
-            for (String sentence : sentences) {
+            List<String> sentences = new ArrayList<>();
+            if (plainText.length() > MAX_PLAIN_TEXT_LENGTH) {
+                for (int pos=0; pos<plainText.length(); pos += MAX_PLAIN_TEXT_LENGTH - DELTA) {
+                    String plainTextChunk = plainText.substring(pos, Math.min(pos+MAX_PLAIN_TEXT_LENGTH, plainText.length()));
+                    sentences.addAll(POSTools.getSentences(plainTextChunk, languageManager));
+                }
+            } else {
+                sentences = POSTools.getSentences(plainText, languageManager);
+            }
 
+            for (String sentence : sentences) {
                 List<Object> csvEntry = new ArrayList<>();
                 List<Tree> constituencyTrees = new LinkedList<>();
 
@@ -137,7 +158,7 @@ public class PreprocessText {
                 }
 
                 for (String column : headerOld) {
-                    csvEntry.add(csvRecord.get(column));
+                    csvEntry.add(csvRecord.get(column).length() > 1000 ? "Text suppressed as it is too long. If required, check the original input file..." : csvRecord.get(column));
                 }
 
                 csvEntry.add(++sentenceIdCounter);
