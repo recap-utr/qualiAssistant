@@ -13,4 +13,4 @@ The system expects a path to a specification file as parameter as shown in ***qu
 It is recommended to increase the Java heap space before starting the application.
 
 The application can be started by using the following command:<br>
-**java -jar qualiAssistant-1.2.0-jar-with-dependencies.jar specificationQualiAssistant.json -Xmx230G**
+**java -jar qualiAssistant-1.2.1-jar-with-dependencies.jar specificationQualiAssistant.json -Xmx230G**
