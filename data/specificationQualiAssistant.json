@@ -1,5 +1,5 @@
 {
-    "version": "1.2.0",
+    "version": "1.2.1",
     "qualiaPatternsFile": "/home/dumani/qualiAssistant/qualiaPatterns_German.csv",
     "language": "german",
     "enableParallelization": true,
