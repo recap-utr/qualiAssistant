@@ -9,21 +9,23 @@ import java.util.stream.Collectors;
 
 public class QualiaPattern {
 
-    private static final String EMPTY_POS_TAG = String.valueOf(UUID.nameUUIDFromBytes("QualiAssistant".getBytes(StandardCharsets.UTF_8)));
+    static final String EMPTY_POS_TAG = String.valueOf(UUID.nameUUIDFromBytes("QualiAssistant".getBytes(StandardCharsets.UTF_8)));
 
 
     String role;
     String inputPattern;
     String inputPattern_withTags;
+    List<String> queryEnvironmentDelimiterPOSTags;
 
     List<List<String>> listOfPossiblePOSSequences_withTags;
     List<List<String>> listOfPossiblePOSSequences;
 
 
-    public QualiaPattern(String role, String inputPattern, String inputPattern_withTags) {
+    public QualiaPattern(String role, String inputPattern, String inputPattern_withTags, List<String> queryEnvironmentDelimiterPOSTags) {
         this.role = role;
         this.inputPattern = inputPattern;
         this.inputPattern_withTags = inputPattern_withTags;
+        this.queryEnvironmentDelimiterPOSTags = queryEnvironmentDelimiterPOSTags;
 
         List<List<String>> possiblePOSSequencesInOneList_withTags = parseEnteredRequiredPOSSequence(inputPattern_withTags);
         this.listOfPossiblePOSSequences_withTags = extractListWithPossiblePOSSequences(possiblePOSSequencesInOneList_withTags).stream().distinct().collect(Collectors.toList());

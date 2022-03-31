@@ -16,8 +16,6 @@ public class LanguageManager {
     private SnowballStemmer snowballStemmer;
     private final String language;
 
-    private String queryEnvironmentDelimiterPOSTag;
-
 
     public LanguageManager (String language) {
         this.language = language;
@@ -39,8 +37,6 @@ public class LanguageManager {
                 sentenceSplitting_pipeline = new StanfordCoreNLP(sentenceSplitting_props);
 
                 snowballStemmer = new germanStemmer();
-
-                queryEnvironmentDelimiterPOSTag = "NP";
             }
             case "english" -> {
                 // POS tags
@@ -57,8 +53,6 @@ public class LanguageManager {
                 sentenceSplitting_pipeline = new StanfordCoreNLP(sentenceSplitting_props);
 
                 snowballStemmer = new englishStemmer();
-
-                queryEnvironmentDelimiterPOSTag = "NP";
             }
         }
     }
@@ -76,8 +70,4 @@ public class LanguageManager {
     }
 
     public String getLanguage() { return language; }
-
-    public String getQueryEnvironmentDelimiterPOSTag() {
-        return this.queryEnvironmentDelimiterPOSTag;
-    }
 }

@@ -2,6 +2,7 @@ package qualiaIdentifier;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.util.Pair;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
@@ -18,6 +19,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static qualiaIdentifier.QualiaPattern.EMPTY_POS_TAG;
 import static utils.CSVFiles.defaultCSVFormat;
 import static utils.CSVFiles.readCSVFile;
 
@@ -296,11 +298,21 @@ public QualiaIdentifier (
     private List<QualiaPattern> getQualiaPatterns(CSVParser csvParser_patternAndRoles) {
         List<QualiaPattern> qualiaPatterns = new ArrayList<>();
         for (CSVRecord csvRecord_patternAndRoles : csvParser_patternAndRoles) {
+
+            List<String> queryEnvironmentDelimiterPOSTags = new ArrayList<>();
+            String queryEnvironmentDelimiterPOSTagsString = csvRecord_patternAndRoles.get("queryEnvironmentDelimiterPOSTags");
+            if (queryEnvironmentDelimiterPOSTagsString.matches("\\[(.+,.+)]")) {
+                queryEnvironmentDelimiterPOSTags.addAll(Arrays.stream(queryEnvironmentDelimiterPOSTagsString.substring(1,queryEnvironmentDelimiterPOSTagsString.length()-1).split(",")).toList());
+            } else {
+                queryEnvironmentDelimiterPOSTags.add(queryEnvironmentDelimiterPOSTagsString);
+            }
+
             qualiaPatterns.add(
                     new QualiaPattern(
                             csvRecord_patternAndRoles.get("role"),
                             csvRecord_patternAndRoles.get("pattern").replaceAll("<.*?>", ""),
-                            csvRecord_patternAndRoles.get("pattern")
+                            csvRecord_patternAndRoles.get("pattern"),
+                            queryEnvironmentDelimiterPOSTags
                     )
             );
         }
@@ -312,10 +324,10 @@ public QualiaIdentifier (
             QualiaPattern qualiaPattern) {
 
         List<List<POSNode>> listOfSubGraphsWithoutLeafs = findMatchingSubGraphsWithoutLeafs(constituencyTree, qualiaPattern.listOfPossiblePOSSequences);
-        List<List<PatternMatch>> listOfPatternMatchesWithoutLeafs = getListOfPatternMatchesWithoutLeafs(listOfSubGraphsWithoutLeafs, qualiaPattern.inputPattern_withTags);
+        List<List<PatternMatch>> listOfPatternMatchesWithoutLeafs = getListOfPatternMatchesWithoutLeafs(listOfSubGraphsWithoutLeafs, qualiaPattern.inputPattern_withTags, qualiaPattern.queryEnvironmentDelimiterPOSTags);
 
         List<List<POSNode>> listOfMatchingLeafs = findMatchingLeafs(constituencyTree, qualiaPattern.listOfPossiblePOSSequences);
-        List<List<PatternMatch>> listOfPatternMatchesOnlyLeafs = getListOfPatternMatchesOnlyLeafs(listOfMatchingLeafs, qualiaPattern.listOfPossiblePOSSequences_withTags);
+        List<List<PatternMatch>> listOfPatternMatchesOnlyLeafs = getListOfPatternMatchesOnlyLeafs(listOfMatchingLeafs, qualiaPattern.listOfPossiblePOSSequences_withTags, qualiaPattern.queryEnvironmentDelimiterPOSTags);
 
         List<List<PatternMatch>> listOfPatternMatches = new ArrayList<>();
         listOfPatternMatches.addAll(listOfPatternMatchesWithoutLeafs);
@@ -605,7 +617,7 @@ public QualiaIdentifier (
         }
     }
 
-    private List<List<PatternMatch>> getListOfPatternMatchesWithoutLeafs(List<List<POSNode>> listOfSubGraphsWithoutLeafs, String patternWithQueryAndQualia) {
+    private List<List<PatternMatch>> getListOfPatternMatchesWithoutLeafs(List<List<POSNode>> listOfSubGraphsWithoutLeafs, String patternWithQueryAndQualia, List<String> queryEnvironmentDelimiterPOSTags) {
         List<List<PatternMatch>> listOfPatternMatchingInformation = new ArrayList<>();
 
         for (List<POSNode> subGraphsWithoutLeafs : listOfSubGraphsWithoutLeafs) {
@@ -624,7 +636,7 @@ public QualiaIdentifier (
             String[] posRequiredWithRolesArray = immutableMatchingPattern_withTags.split("\\s+");
             StringBuilder subSentenceMatchingPattern_withTags = new StringBuilder();
             int i = 0;
-            String expandedQueries = "";
+            String expandedQueriesString = "";
 
             for (POSNode node : subGraphsWithoutLeafs) {
                 if (i == posRequiredWithRolesArray.length) {
@@ -693,7 +705,14 @@ public QualiaIdentifier (
                 }
 
                 if (isQuery) {
-                    expandedQueries = computeExpandedQuery(String.valueOf(expandedQueries), node);
+                    Map<String, Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQueries = computeExpandedQuery(node, queryEnvironmentDelimiterPOSTags);
+                    for (var entry_queryEnvironmentDelimiterPOSTag_expandedQueries : map_queryEnvironmentDelimiterPOSTag_expandedQueries.entrySet()) {
+                        expandedQueriesString += entry_queryEnvironmentDelimiterPOSTag_expandedQueries.getKey() + ":" + "\n";
+                        for (var expandedQuery : entry_queryEnvironmentDelimiterPOSTag_expandedQueries.getValue()) {
+                            expandedQueriesString += expandedQuery + "\n";
+                        }
+                        expandedQueriesString += "\n";
+                    }
                 }
             }
 
@@ -705,7 +724,7 @@ public QualiaIdentifier (
                             onlyLeafsOfImmutableMatchingPattern.toString(),
                             subSentenceMatchingPattern_withTags.toString(),
                             subSentenceMatchingPattern.toString(),
-                            expandedQueries
+                            expandedQueriesString
                     )
             );
 
@@ -715,13 +734,12 @@ public QualiaIdentifier (
         return listOfPatternMatchingInformation;
     }
 
-    private List<List<PatternMatch>> getListOfPatternMatchesOnlyLeafs(List<List<POSNode>> listOfOnlyLeafsSequences, List<List<String>> listOfPossiblePOSSequences) {
+    private List<List<PatternMatch>> getListOfPatternMatchesOnlyLeafs(List<List<POSNode>> listOfOnlyLeafsSequences, List<List<String>> listOfPossiblePOSSequences, List<String> queryEnvironmentDelimiterPOSTags) {
         List<List<PatternMatch>> listOfListOfPatternMatches = new ArrayList<>();
 
         for (List<POSNode> onlyLeafsSequence : listOfOnlyLeafsSequences) {
 
             List<PatternMatch> listOfPatternMatches = new ArrayList<>();
-            String expandedQueries = "";
 
             for (List<String> possiblePOSSequence : listOfPossiblePOSSequences) {
 
@@ -743,6 +761,7 @@ public QualiaIdentifier (
 
                 boolean match = true;
                 String[] possiblePOSSequenceArray = possiblePOSSequence.toArray(new String[0]);
+                String foundQuery = "";
                 for (int i=0; i<possiblePOSSequenceArray.length; i++) {
                     boolean isQuery = false;
                     boolean isQualia = false;
@@ -752,6 +771,11 @@ public QualiaIdentifier (
                     if (token.contains("<query>")) {
                         isQuery = true;
                         token = token.replace("<query>", "").replace("</query>", "");
+
+                        if (!foundQuery.isEmpty()) {
+                            foundQuery += " ";
+                        }
+                        foundQuery += termsArray[i];
                     } else if (token.contains("<qualia>")) {
                         isQualia = true;
                         token = token.replace("<qualia>", "").replace("</qualia>", "");
@@ -788,10 +812,35 @@ public QualiaIdentifier (
                     }
                 }
 
+                Map<String,Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQueries = new HashMap<>();
                 for (POSNode onlyLeafsPosNode : onlyLeafsSequence) {
-                    if (onlyLeafsPosNode.getTerm() != null && onlyLeafsPosNode.getTerm().equals(query)) {
-                        expandedQueries = computeExpandedQuery(String.valueOf(expandedQueries), onlyLeafsPosNode);
+                    Map<String,Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQuery = computeExpandedQuery(onlyLeafsPosNode, queryEnvironmentDelimiterPOSTags);
+                    for (var entry_queryEnvironmentDelimiterPOSTag_expandedQuery : map_queryEnvironmentDelimiterPOSTag_expandedQuery.entrySet()) {
+                        String queryEnvironmentDelimiterPOSTag = entry_queryEnvironmentDelimiterPOSTag_expandedQuery.getKey();
+                        Set<String> expandedQuerySet = entry_queryEnvironmentDelimiterPOSTag_expandedQuery.getValue();
+                        if (query == null || query.isEmpty()) {
+                            for (String expandedQuery : expandedQuerySet) {
+                                if (expandedQuery.contains(foundQuery)) {
+                                    map_queryEnvironmentDelimiterPOSTag_expandedQueries.putIfAbsent(queryEnvironmentDelimiterPOSTag, new TreeSet<>());
+                                    map_queryEnvironmentDelimiterPOSTag_expandedQueries.get(queryEnvironmentDelimiterPOSTag).add(expandedQuery);
+                                }
+                            }
+                        } else if (onlyLeafsPosNode.getTerm() != null && onlyLeafsPosNode.getTerm().equals(query)) {
+                            for (String expandedQuery : expandedQuerySet) {
+                                map_queryEnvironmentDelimiterPOSTag_expandedQueries.putIfAbsent(queryEnvironmentDelimiterPOSTag, new TreeSet<>());
+                                map_queryEnvironmentDelimiterPOSTag_expandedQueries.get(queryEnvironmentDelimiterPOSTag).add(expandedQuery);
+                            }
+                        }
                     }
+                }
+
+                String expandedQueriesString = "";
+                for (var entry_queryEnvironmentDelimiterPOSTag_expandedQueries : map_queryEnvironmentDelimiterPOSTag_expandedQueries.entrySet()) {
+                    expandedQueriesString += entry_queryEnvironmentDelimiterPOSTag_expandedQueries.getKey() + ":" + "\n";
+                    for (var expandedQuery : entry_queryEnvironmentDelimiterPOSTag_expandedQueries.getValue()) {
+                        expandedQueriesString += expandedQuery + "\n";
+                    }
+                    expandedQueriesString += "\n";
                 }
 
                 if (match) {
@@ -803,7 +852,7 @@ public QualiaIdentifier (
                                     posLeafs.toString(),
                                     terms_withTags.toString(),
                                     terms.toString(),
-                                    expandedQueries.toString()
+                                    expandedQueriesString
                             ));
                     listOfListOfPatternMatches.add(listOfPatternMatches);
                 }
@@ -813,17 +862,29 @@ public QualiaIdentifier (
         return listOfListOfPatternMatches;
     }
 
-    private String computeExpandedQuery(String expandedQueries, POSNode node) {
+    private Map<String, Set<String>> computeExpandedQuery(POSNode node, List<String> queryEnvironmentDelimiterPOSTags) {
+        Map<String, Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQuery = new HashMap<>();
+        for (String queryEnvironmentDelimiterPOSTag : queryEnvironmentDelimiterPOSTags) {
+            Set<String> expandedQuery = computeExpandedQuery(node, queryEnvironmentDelimiterPOSTag);
+            if (!expandedQuery.isEmpty()) {
+                map_queryEnvironmentDelimiterPOSTag_expandedQuery.putIfAbsent(queryEnvironmentDelimiterPOSTag, new HashSet<>());
+                map_queryEnvironmentDelimiterPOSTag_expandedQuery.get(queryEnvironmentDelimiterPOSTag).addAll(expandedQuery);
+            }
+        }
+        return map_queryEnvironmentDelimiterPOSTag_expandedQuery;
+    }
+
+    private Set<String> computeExpandedQuery(POSNode node, String queryEnvironmentDelimiterPOSTag) {
         List<POSNode> environmentalNodes = new ArrayList<>();
         POSNode currentNode = node;
         while (currentNode.parent != null) {
-            if (currentNode.getPOSTag().equals(languageManager.getQueryEnvironmentDelimiterPOSTag())) {
+            if (currentNode.getPOSTag().equals(queryEnvironmentDelimiterPOSTag)) {
                 environmentalNodes.add(currentNode);
             }
             currentNode = currentNode.parent;
         }
 
-        StringBuilder expandedQueriesBuilder = new StringBuilder(expandedQueries);
+        Set<String> expandedQueries = new HashSet<>();
         for (POSNode environmentalNode : environmentalNodes) {
             List<POSNode> environmentalLeafs = new ArrayList<>();
             getPOSNodesAsStack(environmentalNode, environmentalLeafs);
@@ -837,13 +898,10 @@ public QualiaIdentifier (
                 }
             }
             if (!expandedQuery.isEmpty()) {
-                if (expandedQueriesBuilder.length() > 0) {
-                    expandedQueriesBuilder.append("\n");
-                }
-                expandedQueriesBuilder.append(expandedQuery);
+                expandedQueries.add(String.valueOf(expandedQuery));
             }
         }
-        return expandedQueriesBuilder.toString();
+        return expandedQueries;
     }
 
     private void getPOSNodesAsStack(POSNode node, List<POSNode> posNodeList) {
