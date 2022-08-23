@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import preprocessor.PreprocessText;
 import qualiaIdentifier.QualiaIdentifier;
 import utils.LanguageManager;
+import utils.ThreadChecker;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ public class Main {
 
 
     public static void main(String[] args) {
+        ThreadChecker.count = 100;
         executeQualiaStructuresAppWithJSON(args[0]);
     }
 

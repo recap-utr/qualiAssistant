@@ -7,6 +7,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import utils.LanguageManager;
+import utils.ThreadChecker;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +21,7 @@ import static utils.CSVFiles.readCSVFile;
 public class PreprocessText {
 
     private static int sentenceIdCounter = 0;
+    public static int counter = 0;
 
     File selectedFileToPreprocess;
     String columnNameInCSVFileWithTextToProceed;
@@ -70,12 +72,11 @@ public class PreprocessText {
 
             List<List<Object>> csvEntries = new ArrayList<>();
             int csvRecordId = 0;
-            int maximumNumberOfThreads = Runtime.getRuntime().availableProcessors() * 10;  // TODO: what is a good number of threads?
+            int maximumNumberOfThreads = (int) Math.floor(ThreadChecker.count*0.5d);//Runtime.getRuntime().availableProcessors() * 10;  // TODO: what is a good number of threads?
             Stack<Integer> availableThreads = new Stack<>();
             for (int i=0; i<maximumNumberOfThreads; i++) {
                 availableThreads.add(i);
             }
-
             for (CSVRecord csvRecord : csvRecords) {
                 if (enableParallelization) {
                     while (true) {
@@ -154,7 +155,16 @@ public class PreprocessText {
 
                 CoreDocument document = languageManager.getPosTagging_pipeline().processToCoreDocument(sentence);
                 for (CoreSentence coreSentence : document.sentences()) {
-                    constituencyTrees.add(coreSentence.constituencyParse());
+                    //the following code will search in any single tree created if it has the pattern (NP (NN <word>) (NN <word>))
+                    //this pattern seems very common with the words in question, eg.: (NP (NN health) (NN care))
+                    Tree consitutTree = coreSentence.constituencyParse();
+
+                    if(PreproQualiaPatternChecker.checkForPattern(consitutTree.toString())){
+                        constituencyTrees.add(Tree.valueOf(PreproQualiaPatternChecker.multiWordTree));
+                    }else {
+                        constituencyTrees.add(consitutTree);
+                    }
+                    //TODO("Long term idea: Try to check for all patterns from the qualia file if they are contained within a tree")
                 }
 
                 for (String column : headerOld) {
@@ -166,6 +176,8 @@ public class PreprocessText {
                 csvEntry.add(constituencyTrees);
                 csvEntry.add(POSTools.getPennStrings(constituencyTrees));
 
+                counter++;
+                System.out.println(counter);
                 csvEntries.add(csvEntry);
             }
 

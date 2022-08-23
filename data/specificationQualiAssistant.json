@@ -1,21 +1,21 @@
 {
-    "qualiaPatternsFile": "/home/dumani/qualiAssistant/qualiaPatterns_German.csv",
-    "language": "german",
-    "version": "1.3.0",
+    "qualiaPatternsFile": "data/qualiaPatterns_English.csv",
+    "language": "english",
+    "version": "1.3.1",
     "enableParallelization": true,
 
     "datasetPreparation": {
         "prepareFile": false,
-        "fileToPreprocess": "/home/dumani/qualiAssistant/offenesParlament.csv",
+        "fileToPreprocess": "D:/recap/qualiassistJAR/datasets/QualiAssistant_dataset/QualiAssistant_dataset/manifestos_collection_from_2000_to_2020_english/manifestos_collection_from_2000_to_2020_english_smalltest.csv",
         "columnWithTextToProceed": "text"
     },
 
     "queryProcessing": {
         "processQuery": true,
-        "filePreprocessed": "/home/dumani/qualiAssistant/offenesParlament_preprocessed.csv",
-        "reduceSearchToQueries": ["Abhängigkeit", "Abtreibung", "Alleinerziehende", "Arbeit", "Arbeitslosigkeit", "Armut", "Atomenergie", "Atomkraftwerk", "Bauern", "Bildung", "Bildungspolitik", "Bundeswehr", "Deutschland", "Drogen", "Familie", "Finanzierung", "Gehalt", "Gesellschaft", "Gesundheit", "Haus", "Innenpolitik", "Kinder", "Klima", "Klimaschutz", "Krankenkassen", "Krankheit", "Legalisierung", "Lohn", "Medikamente", "Mensch", "Merkel", "Migration", "Mutter", "Parlament", "Politik", "Polizei", "Rente", "Resozialisierung", "Schule", "Sicherheit", "Solarenergie", "Terror", "Vater", "Verdienst", "Versicherung", "Weihnachten", "Weisheit", "Wetter", "Windenergie", "Wirtschaft", "Wolf", "Wohnung"],
+        "filePreprocessed": "D:/recap/qualiassistJAR/datasets/QualiAssistant_dataset/QualiAssistant_dataset/queries_with_results/manifestos_collection_from_2000_to_2020_english_preprocessed_withQualiaStructures.csv",
+        "reduceSearchToQueries": ["climate change"],
         "deepSearch": true,
         "useStemming": true,
-        "outputDirectory": "/home/dumani/qualiAssistant/queries_with_results"
+        "outputDirectory": "D:/recap/qualiassistResults"
     }
 }
