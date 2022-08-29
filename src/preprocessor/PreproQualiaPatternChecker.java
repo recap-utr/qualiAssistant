@@ -23,7 +23,12 @@ public class PreproQualiaPatternChecker {
      */
 
     public static String multiWordTree = ""; //todo access to new tree should be done differently
-    public static String trialText = "NP,NN,#,NN,#";
+    public static String[] trialList = {
+            "NP,NN,#,NN,#",
+            "NP,NN,#,NNS,#",
+            "NP,NNP,#,NNP,#",
+            "NP,NNP,#,NNPS,#"
+    };
     //NP,NN,#,NN,# -> Start ( ist immer identisch, ebenso Position der anderen Klammern/Leerzeichen || # = word
     //2. Form: NML,NN,#,NN,#,),NNS,# -> ")" heißt hier ist extra schließklammer, sprich das danach ist anderer teilbaum/leaf
     //3. : NP,NML,NNP,#,NNP,#,),NN,# -> extra Teilbaumsplit NML bevor wörter kommen
@@ -67,8 +72,13 @@ public class PreproQualiaPatternChecker {
 
         boolean returnValue = false;
 
-        if (Pattern.compile(createRegexFromPattern(trialText)).matcher(txt).find()){
-            returnValue = buildMultiwordTree(txt, trialText);
+        for (String s : trialList) {
+            if (Pattern.compile(createRegexFromPattern(s)).matcher(txt).find()) {
+                returnValue = buildMultiwordTree(txt, s);
+                if (returnValue) {
+                    break;
+                }
+            }
         }
 
         return returnValue;
@@ -95,12 +105,29 @@ public class PreproQualiaPatternChecker {
             String buffText = "(" + pattern[3] + " "; //string like "(NN " for further search
             String secWord = buff.substring(buffText.length()+1, buffcursor);
 
-            String multiword = firstWord + " " + secWord;
-
             //create the full partial tree e.g. (NP (NN firstword) ...)) to find and replace it
+
+            if(firstWord.contains("(")){ //something went wrong with splitting earlier
+                char currentChar = '#'; //just a random init value
+                int iter = firstWord.length()-1;
+
+                //go backwards through the word until you hit " ", anything afterwards is the true first word
+                do{
+                    currentChar = firstWord.charAt(iter);
+                    iter--;
+                }while(!(currentChar == ' '));
+                firstWord = firstWord.substring(iter+2); //+2 because too lazy to change up the loop, currently produces eg "P Animal" without
+            }
+
+            //build up the new tree and replace old one
+
+            String multiword = firstWord + " " + secWord;
             String fullTreePart = cursorText + firstWord + ") " + buffText + secWord + "))";
             String newTreeRootText = "(" + pattern[0] + " ";
             String newTree = newTreeRootText + multiword + ")";
+            if(!txt.contains(fullTreePart)){
+                return false; //this means it used the wrong regex, eg NP,NN,NN instead of NP,NNP,NNP
+            }
             multiWordTree = txt.replace(fullTreePart, newTree);
             System.out.println(multiWordTree);
             return true;
