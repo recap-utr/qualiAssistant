@@ -22,6 +22,12 @@ public class PreproQualiaPatternChecker {
      *
      */
 
+    /*
+    ############ CURRENT ISSUES #################
+    -> multiple multiwords within a single tree are ignored, e.g.:  (NP permit extraction) (PP (IN from) (NP (NN groundwater) (NNS systems))
+    -> only bi-multiwords work
+     */
+
     public static String multiWordTree = ""; //todo access to new tree should be done differently
     public static String[] trialList = {
             "NP,NN,#,NN,#",
