@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class PreproQualiaPatternChecker {
     /**
      * common patterns (list has to be updated):
-     * (NML (NN family) (NN planning)) (NNS programs)) -> one to many parentheses
+     * (NML (NN family) (NN planning)) (NNS programs)) -> one to many parentheses, parent node missing?
      * (NP (NN climate) (NN change))
      * (NP (NN Child) (NN Care) (NN Tax) (NN rebate))
      * (NP (NML (NNP Care) (NNP Benefit)) (NN Guarantee))
@@ -19,7 +19,7 @@ public class PreproQualiaPatternChecker {
      * (NP (NN Sexuality) (CC and) (NN Gender)) (NP (NN Identity) -> two multiwords
      * (NP (NNP Nuclear) (NNPS Issues))
      * (NP (JJ high) (NN conservation))) (NP (NP (NN value) (NNS forests)) -> ??? does this count -> parent node missing
-     *
+     *  ...(DT the) (NN mass) (NN production)) (PP (IN of) (NP (NML (NNS animals) (CC and) (NN animal)) (NNS products)))) -> (CC and) (NN animal)) (NNS products)... ?
      */
 
     /*
@@ -75,7 +75,6 @@ public class PreproQualiaPatternChecker {
     //todo: long term: give the pattern as a param and call this from another method
     //todo: pattern regex not quite correct, the .+ also allows unwanted stuff in between eg. (NN <word> (CC bla)) (NN ...)
     public static Boolean checkForPattern(String txt) {
-
         boolean returnValue = false;
 
         for (String s : trialList) {
