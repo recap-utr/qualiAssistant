@@ -72,7 +72,6 @@ public class PreproQualiaPatternChecker {
         return returnValue;
     }
 
-    //todo: long term: give the pattern as a param and call this from another method
     //todo: pattern regex not quite correct, the .+ also allows unwanted stuff in between eg. (NN <word> (CC bla)) (NN ...)
     public static Boolean checkForPattern(String txt) {
         boolean returnValue = false;
