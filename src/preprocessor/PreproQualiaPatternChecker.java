@@ -20,6 +20,10 @@ public class PreproQualiaPatternChecker {
      * (NP (NNP Nuclear) (NNPS Issues))
      * (NP (JJ high) (NN conservation))) (NP (NP (NN value) (NNS forests)) -> ??? does this count -> parent node missing
      *  ...(DT the) (NN mass) (NN production)) (PP (IN of) (NP (NML (NNS animals) (CC and) (NN animal)) (NNS products)))) -> (CC and) (NN animal)) (NNS products)... ?
+     * (NP (NP (JJ major) (NN land) (NN degradation) (NNS problems)) --> multiword with adjective and additional word behind
+     * (NP (NP (VBG rising) (NN sea) (NNS levels)) --> multiword with verb in front
+     * (NP (ADJP (IN off) (HYPH -) (NN road)) (NNS vehicles))
+     * (NP (JJ Genetic) (NNP Engineering) (CD 13))
      */
 
     /*
@@ -73,19 +77,43 @@ public class PreproQualiaPatternChecker {
     }
 
     //todo: pattern regex not quite correct, the .+ also allows unwanted stuff in between eg. (NN <word> (CC bla)) (NN ...)
+    //this should get filtered out by buildMultiWordTree since such a structure would get catched as an exception
     public static Boolean checkForPattern(String txt) {
-        boolean returnValue = false;
+        boolean returnValue = true;
+        boolean bufferValue = false;
+        String bufferText = txt;
 
-        for (String s : trialList) {
-            if (Pattern.compile(createRegexFromPattern(s)).matcher(txt).find()) {
-                returnValue = buildMultiwordTree(txt, s);
-                if (returnValue) {
-                    break;
+        //try to find a multiword, if succesful take the new tree and check again until nothing more is found
+        //this can handle multiple multiwords within a tree
+        //todo: i dont think its possible to increase the algorithmic speed here, therefore any new patterns prolong the runtime
+        while(returnValue){
+            for (String s : trialList) {
+                if (Pattern.compile(createRegexFromPattern(s)).matcher(bufferText).find()) {
+                    returnValue = buildMultiwordTree(bufferText, s);
+                    if (returnValue) {
+                        if(!bufferValue){
+                            System.out.println(txt);
+                            bufferValue = true;
+                        }else{
+                            returnValue = false;
+                        }
+                        System.out.println(multiWordTree);
+                        bufferText = multiWordTree;
+                        break;
+                    }
                 }
             }
+            returnValue = false;
         }
 
-        return returnValue;
+
+       /* //can print out anything without a multiword - testing
+       if(bufferValue == false){
+            System.out.println("###########wrong:########## \n " + txt + "\n #########################");
+        }
+        */
+
+        return bufferValue;
     }
 
     private static Boolean buildMultiwordTree(String txt, String pat){ //only works for bimultiwords, todo replace first/secWord with List (maybe use a count of # or something)
@@ -133,7 +161,6 @@ public class PreproQualiaPatternChecker {
                 return false; //this means it used the wrong regex, eg NP,NN,NN instead of NP,NNP,NNP
             }
             multiWordTree = txt.replace(fullTreePart, newTree);
-            System.out.println(multiWordTree);
             return true;
         }catch (Exception e){
             //todo anything that would result in this seems to be a tree that wasn't correctly filtered out by the regex
@@ -144,3 +171,14 @@ public class PreproQualiaPatternChecker {
 
     }
 }
+
+/*
+
+Failure cases:
+
+(ROOT (FRAG (NP (NP (DT The) (NN war)) (PP (IN on) (NP (NN terrorism) (NN isn�)))) (NP (NP ($ �)) (SYM �) (NP (NN t) (NN working))) (. .)))
+(ROOT (FRAG (NP (NP (DT The) (NN war)) (PP (IN on) (NP terrorism isn�))) (NP (NP ($ �)) (SYM �) (NP (NN t) (NN working))) (. .)))
+
+--> issue with method that creates original tree i guess
+
+ */
