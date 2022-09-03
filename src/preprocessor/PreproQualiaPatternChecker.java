@@ -28,11 +28,12 @@ public class PreproQualiaPatternChecker {
 
     /*
     ############ CURRENT ISSUES #################
-     -> only bi-multiwords work
+     -> only bi-multiwords (eg climate change), but not if they have additional stuff around them
      */
 
     public static String multiWordTree = ""; //todo access to new tree should be done differently
     public static String[] trialList = {
+            "ABBA,LOL,#,LOL,#",
             "NP,NN,#,NN,#",
             "NP,NN,#,NNS,#",
             "NP,NNP,#,NNP,#",
@@ -115,7 +116,15 @@ public class PreproQualiaPatternChecker {
         return bufferValue;
     }
 
+    private static int getWordCount(String txt){
+        //coldheartedly taken from: https://www.baeldung.com/java-count-chars
+        return (int) txt.chars().filter(ch -> ch == '#').count();
+    }
+
     private static Boolean buildMultiwordTree(String txt, String pat){ //only works for bimultiwords, todo replace first/secWord with List (maybe use a count of # or something)
+        String[] words = new String[getWordCount(txt)];
+
+
         //extract the multiword and print
         String[] pattern = pat.split(",");
 
@@ -124,36 +133,36 @@ public class PreproQualiaPatternChecker {
         String buff = txt.substring(cursor);
         int buffcursor = buff.indexOf(")"); //first closing bracket
 
-        String firstWord = buff.substring(0, buffcursor); //todo later this might need a check if pattern[x] contains '#'
+        words[0] = buff.substring(0, buffcursor); //todo later this might need a check if pattern[x] contains '#'
 
         buff = txt.substring(cursor+buffcursor); //move behind the first words ")"
 
-        cursor = txt.indexOf((firstWord+")")) + (firstWord+")").length();
+        cursor = txt.indexOf((words[0]+")")) + (words[0]+")").length();
         buff = txt.substring(cursor);
         buffcursor = buff.indexOf(")");
 
         try{
             String buffText = "(" + pattern[3] + " "; //string like "(NN " for further search
-            String secWord = buff.substring(buffText.length()+1, buffcursor);
+            words[1] = buff.substring(buffText.length()+1, buffcursor);
 
             //create the full partial tree e.g. (NP (NN firstword) ...)) to find and replace it
 
-            if(firstWord.contains("(")){ //something went wrong with splitting earlier
+            if(words[0].contains("(")){ //something went wrong with splitting earlier
                 char currentChar = '#'; //just a random init value
-                int iter = firstWord.length()-1;
+                int iter = words[0].length()-1;
 
                 //go backwards through the word until you hit " ", anything afterwards is the true first word
                 do{
-                    currentChar = firstWord.charAt(iter);
+                    currentChar = words[0].charAt(iter);
                     iter--;
                 }while(!(currentChar == ' '));
-                firstWord = firstWord.substring(iter+2); //+2 because too lazy to change up the loop, currently produces eg "P Animal" without
+                words[0] = words[0].substring(iter+2); //+2 because too lazy to change up the loop, currently produces eg "P Animal" without
             }
 
             //build up the new tree and replace old one
 
-            String multiword = firstWord + " " + secWord;
-            String fullTreePart = cursorText + firstWord + ") " + buffText + secWord + "))";
+            String multiword = words[0] + " " + words[1];
+            String fullTreePart = cursorText + words[0] + ") " + buffText + words[1] + "))";
             String newTreeRootText = "(" + pattern[0] + " ";
             String newTree = newTreeRootText + multiword + ")";
             if(!txt.contains(fullTreePart)){

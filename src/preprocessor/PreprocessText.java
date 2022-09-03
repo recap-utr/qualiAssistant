@@ -158,7 +158,7 @@ public class PreprocessText {
                     //the following code will search in any single tree created if it has the pattern (NP (NN <word>) (NN <word>))
                     //this pattern seems very common with the words in question, eg.: (NP (NN health) (NN care))
                     Tree consitutTree = coreSentence.constituencyParse();
-
+                    consitutTree = Tree.valueOf("(ROOT (ABBA (LOL test) (LOL wort)))");
                     if(PreproQualiaPatternChecker.checkForPattern(consitutTree.toString())){
                         constituencyTrees.add(Tree.valueOf(PreproQualiaPatternChecker.multiWordTree));
                     }else {
