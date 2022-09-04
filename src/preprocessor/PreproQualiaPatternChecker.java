@@ -13,13 +13,13 @@ public class PreproQualiaPatternChecker {
      * (NP (NML (JJR higher) (NN education)) (NN funding))
      * (NP (NN Sexuality) (CC and) (NN Gender)) (NP (NN Identity) -> two multiwords
      * (NP (JJ high) (NN conservation))) (NP (NP (NN value) (NNS forests)) -> ??? does this count -> parent node missing
-     *  ...(DT the) (NN mass) (NN production)) (PP (IN of) (NP (NML (NNS animals) (CC and) (NN animal)) (NNS products)))) -> (CC and) (NN animal)) (NNS products)... ?
+     * ...(DT the) (NN mass) (NN production)) (PP (IN of) (NP (NML (NNS animals) (CC and) (NN animal)) (NNS products)))) -> (CC and) (NN animal)) (NNS products)... ?
      * (NP (NP (JJ major) (NN land) (NN degradation) (NNS problems)) --> multiword with adjective and additional word behind
      * (NP (NP (VBG rising) (NN sea) (NNS levels)) --> multiword with verb in front
      * (NP (ADJP (IN off) (HYPH -) (NN road)) (NNS vehicles))
      * (NP (NN address) (NN soil)) (NP (NML (NN degradation) (CC and) (NN soil)) (NN health)) -> first part wrongly assumed to be a multiword, 2nd part contains two
      * (NP (JJ Australian) (NML (NN animal) (NN welfare)) (NNS standards)))
-     *
+     * <p>
      * currently working:
      * (NP (NN climate) (NN change))
      * (NP (NN groundwater) (NNS systems))
@@ -41,14 +41,14 @@ public class PreproQualiaPatternChecker {
     //3. : NP,NML,NNP,#,NNP,#,),NN,# -> extra Teilbaumsplit NML bevor wörter kommen
     //4. : JJ,#,DT,#,NN,#,NN,# -> auch erstes wort mit word
 
-    public static String createRegexFromPattern(String txt){
+    public static String createRegexFromPattern(String txt) {
         String returnValue = "";
         txt = txt + ",)"; //for convenience i add this, so the switch case is easier to handle
         String[] pattern = txt.split(",");
 
         StringBuilder buff = new StringBuilder("");
-        for(int i = 0; i<pattern.length;i++){
-            switch(pattern[i]){
+        for (int i = 0; i < pattern.length; i++) {
+            switch (pattern[i]) {
                 case "#":
                     buff.append(".+[)]"); //word
                     break;
@@ -56,16 +56,13 @@ public class PreproQualiaPatternChecker {
                     buff.append("[)]"); //extra parentheses
                     break;
                 default:
-                    if (i==0){
+                    if (i == 0) {
                         buff.append(".*");//beginning of regex
                         buff.append("[(]").append(pattern[i]);
-                    } else{
+                    } else {
                         buff.append("[ ][(]").append(pattern[i]).append("[ ]");
                     }
-
-
             }
-
         }
         buff.append(".*"); //end of regex
 
@@ -83,15 +80,15 @@ public class PreproQualiaPatternChecker {
         //try to find a multiword, if succesful take the new tree and check again until nothing more is found
         //this can handle multiple multiwords within a tree
         //todo: i dont think its possible to increase the algorithmic speed here, therefore any new patterns prolong the runtime
-        while(returnValue){
+        while (returnValue) {
             for (String s : trialList) {
                 if (Pattern.compile(createRegexFromPattern(s)).matcher(bufferText).find()) {
                     returnValue = buildMultiwordTree(bufferText, s);
                     if (returnValue) {
-                        if(!bufferValue){
+                        if (!bufferValue) {
                             System.out.println(txt);
                             bufferValue = true;
-                        }else{
+                        } else {
                             returnValue = false;
                         }
                         System.out.println(multiWordTree);
@@ -103,22 +100,20 @@ public class PreproQualiaPatternChecker {
             returnValue = false;
         }
 
-
-       /* //can print out anything without a multiword - use for testing
+        /* //can print out anything without a multiword - use for testing
        if(bufferValue == false){
             System.out.println("###########none found:########## \n " + txt + "\n #########################");
         }
         */
-
         return bufferValue;
     }
 
-    private static int getWordCount(String txt){
+    private static int getWordCount(String txt) {
         //coldheartedly taken from: https://www.baeldung.com/java-count-chars
         return (int) txt.chars().filter(ch -> ch == '#').count();
     }
 
-    private static Boolean buildMultiwordTree(String txt, String pat){ //only works for bimultiwords like (NP (NNP Climate) (NNP Change))
+    private static Boolean buildMultiwordTree(String txt, String pat) { //only works for bimultiwords like (NP (NNP Climate) (NNP Change))
         String[] words = new String[getWordCount(pat)];
 
         //extract the multiword and print
@@ -131,50 +126,46 @@ public class PreproQualiaPatternChecker {
 
         words[0] = buff.substring(0, buffcursor); //todo later this might need a check if pattern[x] contains '#' so you could handle more words
 
-        buff = txt.substring(cursor+buffcursor); //move behind the first words ")"
+        buff = txt.substring(cursor + buffcursor); //move behind the first words ")"
 
-        cursor = txt.indexOf((words[0]+")")) + (words[0]+")").length();
+        cursor = txt.indexOf((words[0] + ")")) + (words[0] + ")").length();
         buff = txt.substring(cursor);
         buffcursor = buff.indexOf(")");
 
-        try{
+        try {
             String buffText = "(" + pattern[3] + " "; //string like "(NN " for further search
-            words[1] = buff.substring(buffText.length()+1, buffcursor);
+            words[1] = buff.substring(buffText.length() + 1, buffcursor);
 
             //create the full partial tree e.g. (NP (NN firstword) ...)) to find and replace it
 
-            if(words[0].contains("(")){ //something went wrong with splitting earlier
+            if (words[0].contains("(")) { //something went wrong with splitting earlier
                 char currentChar = '#'; //just a random init value
-                int iter = words[0].length()-1;
+                int iter = words[0].length() - 1;
 
                 //go backwards through the word until you hit " ", anything afterwards is the true first word
-                do{
+                do {
                     currentChar = words[0].charAt(iter);
                     iter--;
-                }while(!(currentChar == ' '));
-                words[0] = words[0].substring(iter+2); //+2 because too lazy to change up the loop, currently produces eg "P Animal" without
+                } while (!(currentChar == ' '));
+                words[0] = words[0].substring(iter + 2); //+2 because too lazy to change up the loop, currently produces eg "P Animal" without
             }
 
             //build up the new tree and replace old one
-
             String multiword = words[0] + " " + words[1];
             String fullTreePart = cursorText + words[0] + ") " + buffText + words[1] + "))";
             String newTreeRootText = "(" + pattern[0] + " ";
             String newTree = newTreeRootText + multiword + ")";
-            if(!txt.contains(fullTreePart)){
+            if (!txt.contains(fullTreePart)) {
                 return false; //this means it used the wrong regex, eg NP,NN,NN instead of NP,NNP,NNP
             }
             multiWordTree = txt.replace(fullTreePart, newTree);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             //anything that would result in this seems to be a tree that wasn't correctly filtered out by the regex
             //therefore one might find unknown structures for multiwords here
             return false;
         }
-
-
     }
-
 }
 
 /*
