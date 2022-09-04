@@ -19,7 +19,7 @@ public class PreproQualiaPatternChecker {
      * (NP (NN address) (NN soil)) (NP (NML (NN degradation) (CC and) (NN soil)) (NN health)) -> first part wrongly assumed to be a multiword, 2nd part contains two
      * (NP (JJ Australian) (NML (NN animal) (NN welfare)) (NNS standards)))
      *
-     * currently working:
+     * currently working (covers most cases):
      * (NP (NN climate) (NN change))
      * (NP (NN groundwater) (NNS systems))
      * (NP (NNP Climate) (NNP Change))
