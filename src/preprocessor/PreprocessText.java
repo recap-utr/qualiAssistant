@@ -155,15 +155,14 @@ public class PreprocessText {
 
                 CoreDocument document = languageManager.getPosTagging_pipeline().processToCoreDocument(sentence);
                 for (CoreSentence coreSentence : document.sentences()) {
-                    //the following code will search in any single tree created if it has the pattern (NP (NN <word>) (NN <word>))
-                    //this pattern seems very common with the words in question, eg.: (NP (NN health) (NN care))
+                    //the following code will search in any single tree created if it has a pattern like (NP (NN <word>) (NN <word>))
+                    //this will create new trees that contain multiwords like (NP climate change)
                     Tree consitutTree = coreSentence.constituencyParse();
                     if(PreproQualiaPatternChecker.checkForPattern(consitutTree.toString())){
                         constituencyTrees.add(Tree.valueOf(PreproQualiaPatternChecker.multiWordTree));
                     }else {
                         constituencyTrees.add(consitutTree);
                     }
-                    //TODO("Long term idea: Try to check for all patterns from the qualia file if they are contained within a tree")
                 }
 
                 for (String column : headerOld) {
