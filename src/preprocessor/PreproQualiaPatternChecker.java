@@ -107,9 +107,9 @@ public class PreproQualiaPatternChecker {
         }
 
 
-       /* //can print out anything without a multiword - testing
+       /* //can print out anything without a multiword - use for testing
        if(bufferValue == false){
-            System.out.println("###########wrong:########## \n " + txt + "\n #########################");
+            System.out.println("###########none found:########## \n " + txt + "\n #########################");
         }
         */
 
@@ -121,7 +121,7 @@ public class PreproQualiaPatternChecker {
         return (int) txt.chars().filter(ch -> ch == '#').count();
     }
 
-    private static Boolean buildMultiwordTree(String txt, String pat){ //only works for bimultiwords,
+    private static Boolean buildMultiwordTree(String txt, String pat){ //only works for bimultiwords like (NP (NNP Climate) (NNP Change))
         String[] words = new String[getWordCount(pat)];
 
         //extract the multiword and print
