@@ -6,7 +6,6 @@ public class PreproQualiaPatternChecker {
     /**
      * common patterns (list has to be updated when something new is found):
      * (NML (NN family) (NN planning)) (NNS programs)) -> one to many parentheses, parent node missing?
-     * (NP (NN Child) (NN Care) (NN Tax) (NN rebate))
      * (NP (NML (NNP Care) (NNP Benefit)) (NN Guarantee))
      * (NP (DT the) (NN mass) (NN production))
      * (JJ Sustainable) (NNP World) (NNP Economy))) -> parent node missing
@@ -19,7 +18,7 @@ public class PreproQualiaPatternChecker {
      * (NP (ADJP (IN off) (HYPH -) (NN road)) (NNS vehicles))
      * (NP (NN address) (NN soil)) (NP (NML (NN degradation) (CC and) (NN soil)) (NN health)) -> first part wrongly assumed to be a multiword, 2nd part contains two
      * (NP (JJ Australian) (NML (NN animal) (NN welfare)) (NNS standards)))
-     * <p>
+     *
      * currently working:
      * (NP (NN climate) (NN change))
      * (NP (NN groundwater) (NNS systems))
@@ -29,7 +28,7 @@ public class PreproQualiaPatternChecker {
      */
 
     public static String multiWordTree = ""; //todo access to new tree should be done differently
-    public static String[] trialList = {
+    private static final String[] patternList = {
             "NP,NN,#,NN,#",
             "NP,NN,#,NNS,#",
             "NP,NNP,#,NNP,#",
@@ -41,7 +40,7 @@ public class PreproQualiaPatternChecker {
     //3. : NP,NML,NNP,#,NNP,#,),NN,# -> extra Teilbaumsplit NML bevor wörter kommen
     //4. : JJ,#,DT,#,NN,#,NN,# -> auch erstes wort mit word
 
-    public static String createRegexFromPattern(String txt) {
+    private static String createRegexFromPattern(String txt) {
         String returnValue = "";
         txt = txt + ",)"; //for convenience i add this, so the switch case is easier to handle
         String[] pattern = txt.split(",");
@@ -81,7 +80,7 @@ public class PreproQualiaPatternChecker {
         //this can handle multiple multiwords within a tree
         //todo: i dont think its possible to increase the algorithmic speed here, therefore any new patterns prolong the runtime
         while (returnValue) {
-            for (String s : trialList) {
+            for (String s : patternList) {
                 if (Pattern.compile(createRegexFromPattern(s)).matcher(bufferText).find()) {
                     returnValue = buildMultiwordTree(bufferText, s);
                     if (returnValue) {
