@@ -35,10 +35,14 @@ public class PreproQualiaPatternChecker {
             "NP,NNP,#,NNPS,#",
             "NP,JJ,#,NNP,#"
     };
-    //NP,NN,#,NN,# -> Start mit ( ist immer identisch, ebenso Position der anderen Klammern/Leerzeichen || # = word
-    //2. Form: NML,NN,#,NN,#,),NNS,# -> ")" heißt hier ist extra schließklammer, sprich das danach ist anderer teilbaum/leaf
+    //Erklärung der möglichen Patternformen:
+    //Die Pattern sind möglich, da der Start des Regex immer ein "(" ist und die anderen Klammern ebenfalls immer identisch sind
+    //# beudetet dort befindet sich ein Teil des Wortes
+    //NP,NN,#,NN,# -> Standardpattern
+    //2. Form: NML,NN,#,NN,#,),NNS,# -> ")" heißt hier ist extra schließklammer, sprich das danach ist anderer teilbaum/leaf aber wort geht weiter
     //3. : NP,NML,NNP,#,NNP,#,),NN,# -> extra Teilbaumsplit NML bevor wörter kommen
-    //4. : JJ,#,DT,#,NN,#,NN,# -> auch erstes wort mit word
+    //todo Pattern kann statt # auch $ enthalten, das wäre zwar ein Wort aber ungewollt, bspw.:
+    //4. Form: NP,DT,$,NN,#,NN,#
 
     private static String createRegexFromPattern(String txt) {
         String returnValue = "";
