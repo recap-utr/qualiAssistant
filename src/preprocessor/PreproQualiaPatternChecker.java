@@ -33,7 +33,6 @@ public class PreproQualiaPatternChecker {
 
     public static String multiWordTree = ""; //todo access to new tree should be done differently
     public static String[] trialList = {
-            "ABBA,LOL,#,LOL,#",
             "NP,NN,#,NN,#",
             "NP,NN,#,NNS,#",
             "NP,NNP,#,NNP,#",

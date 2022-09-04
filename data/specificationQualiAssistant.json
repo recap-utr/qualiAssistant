@@ -13,7 +13,7 @@
     "queryProcessing": {
         "processQuery": true,
         "filePreprocessed": "D:/recap/qualiassistJAR/datasets/QualiAssistant_dataset/QualiAssistant_dataset/queries_with_results/manifestos_collection_from_2000_to_2020_english_preprocessed_withQualiaStructures.csv",
-        "reduceSearchToQueries": ["climate change", "Animal welfare"],
+        "reduceSearchToQueries": ["Climate change", "Animal welfare"],
         "deepSearch": true,
         "useStemming": true,
         "outputDirectory": "D:/recap/qualiassistResults"
