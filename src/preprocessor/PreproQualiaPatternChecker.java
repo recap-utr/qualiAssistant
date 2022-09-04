@@ -121,9 +121,8 @@ public class PreproQualiaPatternChecker {
         return (int) txt.chars().filter(ch -> ch == '#').count();
     }
 
-    private static Boolean buildMultiwordTree(String txt, String pat){ //only works for bimultiwords, todo replace first/secWord with List (maybe use a count of # or something)
-        String[] words = new String[getWordCount(txt)];
-
+    private static Boolean buildMultiwordTree(String txt, String pat){ //only works for bimultiwords,
+        String[] words = new String[getWordCount(pat)];
 
         //extract the multiword and print
         String[] pattern = pat.split(",");
@@ -178,6 +177,7 @@ public class PreproQualiaPatternChecker {
 
 
     }
+
 }
 
 /*
