@@ -1,34 +1,31 @@
 package preprocessor;
 
-import java.util.List;
 import java.util.regex.Pattern;
-//(ROOT (S (NP (DT The) (NNS Greens)) (VP (VBP are) (VP (VBN committed) (PP (IN to) (S (VP (VBG providing) (NP (NP (JJ free) (, ,) (JJ public) (JJ early) (NN childhood) (NN education)) (CC and) (NP (NN childcare) (NNS places))) (PP (IN for) (NP (NP (DT all) (JJ Australian) (NNS children)) (PP (IN in) (NP (DT the) (ADJP (NN year) (VBG preceding)) (JJ compulsory) (NN schooling)))))))))) (. .)))
+
 public class PreproQualiaPatternChecker {
     /**
-     * common patterns (list has to be updated):
+     * common patterns (list has to be updated when something new is found):
      * (NML (NN family) (NN planning)) (NNS programs)) -> one to many parentheses, parent node missing?
-     * (NP (NN climate) (NN change))
      * (NP (NN Child) (NN Care) (NN Tax) (NN rebate))
      * (NP (NML (NNP Care) (NNP Benefit)) (NN Guarantee))
-     * (NP (NN groundwater) (NNS systems))
-     * (NP (NNP Climate) (NNP Change))
      * (NP (DT the) (NN mass) (NN production))
      * (JJ Sustainable) (NNP World) (NNP Economy))) -> parent node missing
      * (NP (NML (JJR higher) (NN education)) (NN funding))
-     * (NP (NNP National) (NNP Security))
      * (NP (NN Sexuality) (CC and) (NN Gender)) (NP (NN Identity) -> two multiwords
-     * (NP (NNP Nuclear) (NNPS Issues))
      * (NP (JJ high) (NN conservation))) (NP (NP (NN value) (NNS forests)) -> ??? does this count -> parent node missing
      *  ...(DT the) (NN mass) (NN production)) (PP (IN of) (NP (NML (NNS animals) (CC and) (NN animal)) (NNS products)))) -> (CC and) (NN animal)) (NNS products)... ?
      * (NP (NP (JJ major) (NN land) (NN degradation) (NNS problems)) --> multiword with adjective and additional word behind
      * (NP (NP (VBG rising) (NN sea) (NNS levels)) --> multiword with verb in front
      * (NP (ADJP (IN off) (HYPH -) (NN road)) (NNS vehicles))
+     * (NP (NN address) (NN soil)) (NP (NML (NN degradation) (CC and) (NN soil)) (NN health)) -> first part wrongly assumed to be a multiword, 2nd part contains two
+     * (NP (JJ Australian) (NML (NN animal) (NN welfare)) (NNS standards)))
+     *
+     * currently working:
+     * (NP (NN climate) (NN change))
+     * (NP (NN groundwater) (NNS systems))
+     * (NP (NNP Climate) (NNP Change))
+     * (NP (NNP Nuclear) (NNPS Issues))
      * (NP (JJ Genetic) (NNP Engineering) (CD 13))
-     */
-
-    /*
-    ############ CURRENT ISSUES #################
-     -> only bi-multiwords (eg climate change), but not if they have additional stuff around them
      */
 
     public static String multiWordTree = ""; //todo access to new tree should be done differently
@@ -36,9 +33,10 @@ public class PreproQualiaPatternChecker {
             "NP,NN,#,NN,#",
             "NP,NN,#,NNS,#",
             "NP,NNP,#,NNP,#",
-            "NP,NNP,#,NNPS,#"
+            "NP,NNP,#,NNPS,#",
+            "NP,JJ,#,NNP,#"
     };
-    //NP,NN,#,NN,# -> Start ( ist immer identisch, ebenso Position der anderen Klammern/Leerzeichen || # = word
+    //NP,NN,#,NN,# -> Start mit ( ist immer identisch, ebenso Position der anderen Klammern/Leerzeichen || # = word
     //2. Form: NML,NN,#,NN,#,),NNS,# -> ")" heißt hier ist extra schließklammer, sprich das danach ist anderer teilbaum/leaf
     //3. : NP,NML,NNP,#,NNP,#,),NN,# -> extra Teilbaumsplit NML bevor wörter kommen
     //4. : JJ,#,DT,#,NN,#,NN,# -> auch erstes wort mit word
@@ -131,7 +129,7 @@ public class PreproQualiaPatternChecker {
         String buff = txt.substring(cursor);
         int buffcursor = buff.indexOf(")"); //first closing bracket
 
-        words[0] = buff.substring(0, buffcursor); //todo later this might need a check if pattern[x] contains '#'
+        words[0] = buff.substring(0, buffcursor); //todo later this might need a check if pattern[x] contains '#' so you could handle more words
 
         buff = txt.substring(cursor+buffcursor); //move behind the first words ")"
 
@@ -169,7 +167,7 @@ public class PreproQualiaPatternChecker {
             multiWordTree = txt.replace(fullTreePart, newTree);
             return true;
         }catch (Exception e){
-            //todo anything that would result in this seems to be a tree that wasn't correctly filtered out by the regex
+            //anything that would result in this seems to be a tree that wasn't correctly filtered out by the regex
             //therefore one might find unknown structures for multiwords here
             return false;
         }
