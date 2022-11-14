@@ -5,7 +5,7 @@
     "enableParallelization": true,
 
     "datasetPreparation": {
-        "prepareFile": true,
+        "prepareFile": false,
         "fileToPreprocess": "D:/recap/qualiassistJAR/datasets/QualiAssistant_dataset/QualiAssistant_dataset/manifestos_collection_from_2000_to_2020_english/manifestos_collection_from_2000_to_2020_english_smalltest.csv",
         "columnWithTextToProceed": "text"
     },

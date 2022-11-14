@@ -156,8 +156,9 @@ public class PreproQualiaPatternChecker {
             //build up the new tree and replace old one
             String multiword = words[0] + " " + words[1];
             String fullTreePart = cursorText + words[0] + ") " + buffText + words[1] + "))";
-            String newTreeRootText = "(" + pattern[0] + " ";
-            String newTree = newTreeRootText + multiword + ")";
+            String newTreeRootText = "(" + pattern[0] + " (" + pattern[1] + " ";
+            //String newTreeRootText = "(" + pattern[0] + " ";
+            String newTree = newTreeRootText + multiword + "))";
             if (!txt.contains(fullTreePart)) {
                 return false; //this means it used the wrong regex, eg NP,NN,NN instead of NP,NNP,NNP
             }
