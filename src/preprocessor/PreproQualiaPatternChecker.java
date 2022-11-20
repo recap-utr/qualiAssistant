@@ -154,10 +154,10 @@ public class PreproQualiaPatternChecker {
             }
 
             //build up the new tree and replace old one
-            String multiword = words[0] + "_" + words[1];
+            String multiword = words[0] + "_" + words[1]; //todo: figure out why this _ is needed, it shouldnt be, but it breaks the entire tree if its just a space
             String fullTreePart = cursorText + words[0] + ") " + buffText + words[1] + "))";
-            String newTreeRootText = "(" + pattern[0] + "(" + pattern[1] + " ";
-            //String newTreeRootText = "(" + pattern[0] + " ";
+            String newTreeRootText = "(" + pattern[0] + "(" + pattern[1] + " "; //this builds (NP (NN word word))
+            //String newTreeRootText = "(" + pattern[0] + " "; -> this would build (NP word word)
             String newTree = newTreeRootText + multiword + "))";
             if (!txt.contains(fullTreePart)) {
                 return false; //this means it used the wrong regex, eg NP,NN,NN instead of NP,NNP,NNP
