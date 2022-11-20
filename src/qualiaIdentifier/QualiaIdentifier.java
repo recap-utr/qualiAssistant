@@ -26,6 +26,8 @@ import static utils.CSVFiles.readCSVFile;
 
 public class QualiaIdentifier {
 
+    public static int iter=  0;
+
     private static final int NUMBER_OF_SKIP_SPACES = 1;
     private static final char SKIP_CHARACTER = ' ';
 
@@ -463,6 +465,11 @@ public QualiaIdentifier (
                         }
                     }
 
+                    iter++;
+                    if(iter == 370){
+                        int test = 0;
+                    }
+                    System.out.println(iter);
                     if (!(foundPOSSequence.get(i+j).getPOSTag().equals(possiblePOSTag) && (requiredTerm == null || foundPOSSequence.get(i+j).getTerm().equals(requiredTerm)))) {
                         foundMatch = false;
                         break;

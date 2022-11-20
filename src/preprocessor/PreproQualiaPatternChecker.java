@@ -154,9 +154,9 @@ public class PreproQualiaPatternChecker {
             }
 
             //build up the new tree and replace old one
-            String multiword = words[0] + " " + words[1];
+            String multiword = words[0] + "_" + words[1];
             String fullTreePart = cursorText + words[0] + ") " + buffText + words[1] + "))";
-            String newTreeRootText = "(" + pattern[0] + " (" + pattern[1] + " ";
+            String newTreeRootText = "(" + pattern[0] + "(" + pattern[1] + " ";
             //String newTreeRootText = "(" + pattern[0] + " ";
             String newTree = newTreeRootText + multiword + "))";
             if (!txt.contains(fullTreePart)) {

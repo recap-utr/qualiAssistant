@@ -5,7 +5,7 @@
     "enableParallelization": true,
 
     "datasetPreparation": {
-        "prepareFile": false,
+        "prepareFile": true,
         "fileToPreprocess": "D:/recap/qualiassistJAR/datasets/QualiAssistant_dataset/QualiAssistant_dataset/manifestos_collection_from_2000_to_2020_english/manifestos_collection_from_2000_to_2020_english_smalltest.csv",
         "columnWithTextToProceed": "text"
     },
@@ -13,7 +13,7 @@
     "queryProcessing": {
         "processQuery": true,
         "filePreprocessed": "D:/recap/qualiassistJAR/datasets/QualiAssistant_dataset/QualiAssistant_dataset/queries_with_results/manifestos_collection_from_2000_to_2020_english_preprocessed_withQualiaStructures.csv",
-        "reduceSearchToQueries": ["Climate change", "Animal welfare"],
+        "reduceSearchToQueries": ["Climate_change", "Animal welfare"],
         "deepSearch": true,
         "useStemming": true,
         "outputDirectory": "D:/recap/qualiassistResults"
