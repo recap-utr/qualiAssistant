@@ -26,8 +26,6 @@ import static utils.CSVFiles.readCSVFile;
 
 public class QualiaIdentifier {
 
-    public static int iter=  0;
-
     private static final int NUMBER_OF_SKIP_SPACES = 1;
     private static final char SKIP_CHARACTER = ' ';
 
@@ -46,15 +44,15 @@ public class QualiaIdentifier {
     boolean enableParallelization;
 
 
-public QualiaIdentifier (
-        File selectedFile_preprocessedFile,
-        Path pathToQualiaPatterns,
-        String query,
-        boolean useStemming,
-        Path pathToFileWithQualiaRolesForQuery,
-        LanguageManager languageManager,
-        boolean enableDeepSearch,
-        boolean enableParallelization) {
+    public QualiaIdentifier(
+            File selectedFile_preprocessedFile,
+            Path pathToQualiaPatterns,
+            String query,
+            boolean useStemming,
+            Path pathToFileWithQualiaRolesForQuery,
+            LanguageManager languageManager,
+            boolean enableDeepSearch,
+            boolean enableParallelization) {
 
         this.selectedFile_preprocessedFile = selectedFile_preprocessedFile;
         this.pathToQualiaPatterns = pathToQualiaPatterns;
@@ -105,7 +103,7 @@ public QualiaIdentifier (
             int maximumNumberOfThreads = Runtime.getRuntime().availableProcessors() * 10;  // TODO: what is a good number of threads?
             Stack<Integer> availableThreads = new Stack<>();
             LanguageManager[] languageManagers = new LanguageManager[maximumNumberOfThreads];
-            for (int i=0; i<maximumNumberOfThreads; i++) {
+            for (int i = 0; i < maximumNumberOfThreads; i++) {
                 languageManagers[i] = new LanguageManager(languageManager.getLanguage());
                 availableThreads.add(i);
             }
@@ -149,12 +147,12 @@ public QualiaIdentifier (
         }
     }
 
-    private void processCSVRecord (List<QualiaPattern> qualiaPatterns, List<String> headerOld, List<String> queryTerms, List<List<Object>> csvEntries, CSVRecord csvRecord, LanguageManager languageManager, Stack<Integer> availableThreads, int freeThreadPosition) {
+    private void processCSVRecord(List<QualiaPattern> qualiaPatterns, List<String> headerOld, List<String> queryTerms, List<List<Object>> csvEntries, CSVRecord csvRecord, LanguageManager languageManager, Stack<Integer> availableThreads, int freeThreadPosition) {
 
         Set<String> uniqueQualiaQueryPairForSentenceSet = new HashSet<>();
 
         String constituencyTreeString = csvRecord.get("constituency_tree");
-        POSNode constituencyTree = getTreeStructure(constituencyTreeString.substring(1, constituencyTreeString.length()-1));
+        POSNode constituencyTree = getTreeStructure(constituencyTreeString.substring(1, constituencyTreeString.length() - 1));
 
         for (QualiaPattern qualiaPattern : qualiaPatterns) {
 
@@ -217,7 +215,7 @@ public QualiaIdentifier (
         }
     }
 
-    private String getUniqueQualiaQueryRolePatternEntry (String sentenceId, String foundQuery, String foundQualia, String role) {
+    private String getUniqueQualiaQueryRolePatternEntry(String sentenceId, String foundQuery, String foundQualia, String role) {
         return sentenceId + "$" + foundQuery + "$" + foundQualia + "$" + role;
     }
 
@@ -226,8 +224,8 @@ public QualiaIdentifier (
         StringBuilder foundPatternWithQueryAndQualia = new StringBuilder();
         String[] patternWithQueryAndQualiaArray = patternWithQueryAndQualia.split("\\s+");
         String[] foundPatternArray = foundPattern.split("\\s+");
-        int i=0;
-        int j=0;
+        int i = 0;
+        int j = 0;
 
         while (i < patternWithQueryAndQualiaArray.length) {
             // TODO: refactor duplicate
@@ -248,7 +246,7 @@ public QualiaIdentifier (
             patternWithQueryAndQualiaArray[i] = patternWithQueryAndQualiaArray[i].replaceAll("/.*", "");
 
             if (patternWithQueryAndQualiaArray[i].matches("\\[.*?]")) {
-                patternWithQueryAndQualiaArray[i] = patternWithQueryAndQualiaArray[i].substring(1,patternWithQueryAndQualiaArray[i].length()-1);
+                patternWithQueryAndQualiaArray[i] = patternWithQueryAndQualiaArray[i].substring(1, patternWithQueryAndQualiaArray[i].length() - 1);
                 String[] patternWithQueryAndQualiaArrayOptional = patternWithQueryAndQualiaArray[i].split(",");
                 for (String option : patternWithQueryAndQualiaArrayOptional) {
                     if (option.replaceAll("<.*?>", "").equals(foundPatternArray[j])) {
@@ -304,7 +302,7 @@ public QualiaIdentifier (
             List<String> queryEnvironmentDelimiterPOSTags = new ArrayList<>();
             String queryEnvironmentDelimiterPOSTagsString = csvRecord_patternAndRoles.get("queryEnvironmentDelimiterPOSTags");
             if (queryEnvironmentDelimiterPOSTagsString.matches("\\[(.+,.+)]")) {
-                queryEnvironmentDelimiterPOSTags.addAll(Arrays.stream(queryEnvironmentDelimiterPOSTagsString.substring(1,queryEnvironmentDelimiterPOSTagsString.length()-1).split(",")).toList());
+                queryEnvironmentDelimiterPOSTags.addAll(Arrays.stream(queryEnvironmentDelimiterPOSTagsString.substring(1, queryEnvironmentDelimiterPOSTagsString.length() - 1).split(",")).toList());
             } else {
                 queryEnvironmentDelimiterPOSTags.add(queryEnvironmentDelimiterPOSTagsString);
             }
@@ -338,22 +336,22 @@ public QualiaIdentifier (
         return listOfPatternMatches;
     }
 
-    private static POSNode getTreeStructure (String treeInStringformat) {
+    private static POSNode getTreeStructure(String treeInStringformat) {
         return getTreeStructureOfPrettyPrintedTree(prettyPrintTreeWithIntends(treeInStringformat));
     }
 
-    private static String prettyPrintTreeWithIntends (String treeInStringFormat) {
+    private static String prettyPrintTreeWithIntends(String treeInStringFormat) {
 
         int currentOpenBrackets = 0;
 
         StringBuilder output = new StringBuilder();
         String formattedTree = treeInStringFormat.replace("\\s+", " ");
-        for (int i=0; i<formattedTree.length(); i++) {
+        for (int i = 0; i < formattedTree.length(); i++) {
             char c = formattedTree.charAt(i);
             if (c == '(') {
                 currentOpenBrackets++;
                 output.append("\n");
-                for (int j=0; j< NUMBER_OF_SKIP_SPACES * currentOpenBrackets; j++) {
+                for (int j = 0; j < NUMBER_OF_SKIP_SPACES * currentOpenBrackets; j++) {
                     output.append(SKIP_CHARACTER);
                 }
             } else if (c == ')') {
@@ -422,7 +420,7 @@ public QualiaIdentifier (
             List<POSNode> foundPOSSequence = new ArrayList<>();
             int positionInPOSSequence = 0;
             Map<POSNode, Boolean> map_posNode_visited = new HashMap<>();
-            Map<POSNode,Boolean> map_unexploredSubGraph_alreadySeen = new HashMap<>();
+            Map<POSNode, Boolean> map_unexploredSubGraph_alreadySeen = new HashMap<>();
 
             List<BooleanSubgraph> booleanSubGraphList = new ArrayList<>();
             findSubgraph(root, possiblePOSSequence, map_posNode_visited, foundPOSSequence, positionInPOSSequence, booleanSubGraphList, map_unexploredSubGraph_alreadySeen);
@@ -445,16 +443,16 @@ public QualiaIdentifier (
 
         List<POSNode> foundPOSSequence = new ArrayList<>();
         getPOSNodesAsStack(constituencyTree, foundPOSSequence);
-        for (int i=foundPOSSequence.size()-1; i>=0; i--) {
+        for (int i = foundPOSSequence.size() - 1; i >= 0; i--) {
             if (!foundPOSSequence.get(i).children.isEmpty()) {
                 foundPOSSequence.remove(i);
             }
         }
 
         for (List<String> possiblePOSSequence : listOfPossiblePOSSequences) {
-            for (int i=0; i<foundPOSSequence.size()-possiblePOSSequence.size()+1; i++) {
+            for (int i = 0; i < foundPOSSequence.size() - possiblePOSSequence.size() + 1; i++) {
                 boolean foundMatch = true;
-                for (int j=0; j<possiblePOSSequence.size(); j++) {
+                for (int j = 0; j < possiblePOSSequence.size(); j++) {
                     String possiblePOSTag = possiblePOSSequence.get(j);
                     String requiredTerm = null;
                     if (possiblePOSTag.contains("/")) {
@@ -464,20 +462,14 @@ public QualiaIdentifier (
                             requiredTerm = matcher.group(2);
                         }
                     }
-
-                    iter++;
-                    if(iter == 370){
-                        int test = 0;
-                    }
-                    System.out.println(iter);
-                    if (!(foundPOSSequence.get(i+j).getPOSTag().equals(possiblePOSTag) && (requiredTerm == null || foundPOSSequence.get(i+j).getTerm().equals(requiredTerm)))) {
+                    if (!(foundPOSSequence.get(i + j).getPOSTag().equals(possiblePOSTag) && (requiredTerm == null || foundPOSSequence.get(i + j).getTerm().equals(requiredTerm)))) {
                         foundMatch = false;
                         break;
                     }
                 }
 
                 if (foundMatch) {
-                    BooleanSubgraph booleanSubgraph = new BooleanSubgraph(true, foundPOSSequence.subList(i, i+possiblePOSSequence.size()));
+                    BooleanSubgraph booleanSubgraph = new BooleanSubgraph(true, foundPOSSequence.subList(i, i + possiblePOSSequence.size()));
                     listOfSubGraphsOnlyLeafs.add(booleanSubgraph.foundPOSSequence);
                 }
             }
@@ -486,14 +478,14 @@ public QualiaIdentifier (
         return listOfSubGraphsOnlyLeafs;
     }
 
-    private List<BooleanSubgraph> findSubgraph (
+    private List<BooleanSubgraph> findSubgraph(
             POSNode root,
             List<String> possiblePOSSequence,
             Map<POSNode, Boolean> map_posNode_visited,
             List<POSNode> foundPOSSequence,
             int positionInPOSSequence,
             List<BooleanSubgraph> booleanSubGraphList,
-            Map<POSNode,Boolean> map_unexploredSubGraph_alreadySeen) {
+            Map<POSNode, Boolean> map_unexploredSubGraph_alreadySeen) {
 
         if (positionInPOSSequence < possiblePOSSequence.size()) {
             POSNode node = getNextNotVisitedNode(root, map_posNode_visited);
@@ -528,10 +520,10 @@ public QualiaIdentifier (
 
             if (foundPOSSequence.size() >= possiblePOSSequence.size()) {
                 boolean matchFound = false;
-                for (int i=0; i<foundPOSSequence.size()-possiblePOSSequence.size()+1; i++) {
+                for (int i = 0; i < foundPOSSequence.size() - possiblePOSSequence.size() + 1; i++) {
                     matchFound = true;
-                    for (int j=0; j<possiblePOSSequence.size(); j++) {
-                        String foundPOSTag = foundPOSSequence.get(i+j).getPOSTag();
+                    for (int j = 0; j < possiblePOSSequence.size(); j++) {
+                        String foundPOSTag = foundPOSSequence.get(i + j).getPOSTag();
                         String requiredPOSTag = possiblePOSSequence.get(j);
                         if (requiredPOSTag.contains("/")) {
                             requiredPOSTag = requiredPOSTag.split("/")[0];
@@ -543,7 +535,7 @@ public QualiaIdentifier (
                     }
 
                     if (matchFound && !foundPOSSequence.isEmpty()) {
-                        foundPOSSequence = foundPOSSequence.subList(i, i+possiblePOSSequence.size());
+                        foundPOSSequence = foundPOSSequence.subList(i, i + possiblePOSSequence.size());
                         booleanSubGraphList.add(new BooleanSubgraph(true, foundPOSSequence));
                     }
                 }
@@ -559,7 +551,7 @@ public QualiaIdentifier (
         }
     }
 
-    private POSNode getNextNotVisitedNode (POSNode root, Map<POSNode, Boolean> map_posNode_visited) {
+    private POSNode getNextNotVisitedNode(POSNode root, Map<POSNode, Boolean> map_posNode_visited) {
         if (map_posNode_visited.get(root) == null) {
             return root;
         } else {
@@ -589,7 +581,7 @@ public QualiaIdentifier (
             List<BooleanSubgraph> booleanSubgraphList,
             Map<POSNode, Boolean> map_unexploredSubGraph_alreadySeen) {
 
-        while(true) {
+        while (true) {
             boolean foundUnexploredSubGraph = false;
             for (var entry_unexploredSubGraph_alreadySeen : map_unexploredSubGraph_alreadySeen.entrySet()) {
                 if (!entry_unexploredSubGraph_alreadySeen.getValue()) {
@@ -769,7 +761,7 @@ public QualiaIdentifier (
                 boolean match = true;
                 String[] possiblePOSSequenceArray = possiblePOSSequence.toArray(new String[0]);
                 String foundQuery = "";
-                for (int i=0; i<possiblePOSSequenceArray.length; i++) {
+                for (int i = 0; i < possiblePOSSequenceArray.length; i++) {
                     boolean isQuery = false;
                     boolean isQualia = false;
 
@@ -819,9 +811,9 @@ public QualiaIdentifier (
                     }
                 }
 
-                Map<String,Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQueries = new HashMap<>();
+                Map<String, Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQueries = new HashMap<>();
                 for (POSNode onlyLeafsPosNode : onlyLeafsSequence) {
-                    Map<String,Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQuery = computeExpandedQuery(onlyLeafsPosNode, queryEnvironmentDelimiterPOSTags);
+                    Map<String, Set<String>> map_queryEnvironmentDelimiterPOSTag_expandedQuery = computeExpandedQuery(onlyLeafsPosNode, queryEnvironmentDelimiterPOSTags);
                     for (var entry_queryEnvironmentDelimiterPOSTag_expandedQuery : map_queryEnvironmentDelimiterPOSTag_expandedQuery.entrySet()) {
                         String queryEnvironmentDelimiterPOSTag = entry_queryEnvironmentDelimiterPOSTag_expandedQuery.getKey();
                         Set<String> expandedQuerySet = entry_queryEnvironmentDelimiterPOSTag_expandedQuery.getValue();

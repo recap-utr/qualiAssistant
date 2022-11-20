@@ -160,7 +160,6 @@ public class PreprocessText {
                     Tree consitutTree = coreSentence.constituencyParse();
                     if(PreproQualiaPatternChecker.checkForPattern(consitutTree.toString())){
                         constituencyTrees.add(Tree.valueOf(PreproQualiaPatternChecker.multiWordTree));
-                        System.out.println("Tree: " + Tree.valueOf(PreproQualiaPatternChecker.multiWordTree).pennString());
                     }else {
                         constituencyTrees.add(consitutTree);
                     }
