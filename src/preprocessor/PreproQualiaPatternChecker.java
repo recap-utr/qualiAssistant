@@ -1,8 +1,103 @@
 package preprocessor;
 
+import edu.stanford.nlp.trees.Tree;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class PreproQualiaPatternChecker {
+
+    //############################## all this is the custom tree stuff ###############################
+
+    //create a Tree test that has a root node with the label "NP"
+    //and two children nodes with the labels "NN" and "NN"
+    public static Tree trial = Tree.valueOf("(ROOT (S (NP (NN Climate) (NN change)) (VP (VBZ is) (PP (IN upon) (NP (PRP us)))) (. .)))");
+    public static Tree test = Tree.valueOf("(NP (NN) (NN))");
+    public static Tree buff = null;
+
+    public static void blubber(){
+        System.out.println("bla " + trial.pennString());
+        System.out.println("blubber: " + checkIfTreeContainsSubtree(trial, test));
+
+
+
+
+        System.out.println("trial: " + trial.pennString());
+    }
+
+
+    //check if test contains specific given subtree
+    public static boolean checkIfTreeContainsSubtree(Tree tree, Tree subtree) {
+        if (tree == null || subtree == null) {
+            return false;
+        }
+        if (tree.equals(subtree)) {
+            return true;
+        }
+        if(tree.label().equals(subtree.label())){
+            if(tree.children().length == subtree.children().length){
+                if((tree.getChildrenAsList().get(0).label() + "-1").equals(subtree.getChildrenAsList().get(0).label().toString())){
+                    if((tree.getChildrenAsList().get(1).label() + "-2").equals(subtree.getChildrenAsList().get(1).label().toString())){
+
+                        //correct subtree found
+                        String word1 = tree.getChildrenAsList().get(0).getChild(0).label().toString();
+                        String word2 = tree.getChildrenAsList().get(1).getChild(0).label().toString();
+                        word1 = word1.replace("-1", "");
+                        word2 = word2.replace("-2", "");
+                        String multiword = word1 + " " + word2;
+
+                        //found multiword, put it into the tree
+                        Tree multiWordLeaf = Tree.valueOf("(NN)");
+                        multiWordLeaf.addChild(Tree.valueOf("(" + multiword + ")"));
+                        tree.setChild(0, multiWordLeaf);
+                        tree.removeChild(1);
+
+                        return true;
+                    }
+                }else{
+                    return false;
+                }
+            }
+        }
+        for (Tree child : tree.children()) {
+            if (checkIfTreeContainsSubtree(child, subtree)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*
+     public static boolean checkIfTreeContainsSubtree(Tree tree, Tree subtree) {
+        if (tree == null || subtree == null) {
+            return false;
+        }
+        if (tree.equals(subtree)) {
+            return true;
+        }
+        if(tree.label().equals(subtree.label())){
+
+            if(tree.children().length == subtree.children().length){
+                for(int i = 0; i < tree.children().length; i++){
+                    if(tree.getChild(i).label().equals(subtree.getChild(i).label())){
+                       return true;
+                    }
+                }
+                return true;
+            }
+        }
+        for (Tree child : tree.children()) {
+            if (checkIfTreeContainsSubtree(child, subtree)) {
+                return true;
+            }
+        }
+        return false;
+    }
+     */
+
+    //############################## all this is the custom tree stuff ###############################
+
     /**
      * common patterns (list has to be updated when something new is found):
      * (NML (NN family) (NN planning)) (NNS programs)) -> one to many parentheses, parent node missing?

@@ -158,6 +158,7 @@ public class PreprocessText {
                     //the following code will search in any single tree created if it has a pattern like (NP (NN <word>) (NN <word>))
                     //this will create new trees that contain multiwords like (NP climate change)
                     Tree consitutTree = coreSentence.constituencyParse();
+                    PreproQualiaPatternChecker.blubber();
                     if(PreproQualiaPatternChecker.checkForPattern(consitutTree.toString())){
                         constituencyTrees.add(Tree.valueOf(PreproQualiaPatternChecker.multiWordTree));
                     }else {
