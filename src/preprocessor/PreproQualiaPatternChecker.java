@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 public class PreproQualiaPatternChecker {
 
+    //todo: make it possible to check for multiple pattern in one tree (see ideas in other comments)
     //create a list of Tree Patterns
     private static final Tree[] patternTrees = {
             Tree.valueOf("(NP (NN) (NN))"),
@@ -18,9 +19,10 @@ public class PreproQualiaPatternChecker {
     //this takes a tree and checks if it matches any of the patterns
     public static Tree checkTreeForPattern(Tree tree) {
         boolean wasFound = false;
+        Tree buff = tree.deepCopy(); //note: this isn't redundant, compiler might mark it as such
         for (Tree patternTree : patternTrees) {
             if (checkIfTreeContainsSubtree(tree, patternTree)) {
-                Tree buff = tree; //note: this isn't redundant, compiler might mark it as such
+
                 System.out.println("Found pattern: " + patternTree);
                 System.out.println("in tree: " + buff);
                 System.out.println("turned into: " + tree);
