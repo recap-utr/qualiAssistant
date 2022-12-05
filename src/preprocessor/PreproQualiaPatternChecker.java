@@ -2,64 +2,84 @@ package preprocessor;
 
 import edu.stanford.nlp.trees.Tree;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 public class PreproQualiaPatternChecker {
 
-    //############################## all this is the custom tree stuff ###############################
+    //create a list of Tree Patterns
+    private static final Tree[] patternTrees = {
+            Tree.valueOf("(NP (NN) (NN))"),
+            Tree.valueOf("(NP (NN) (NNS))"),
+            Tree.valueOf("(NP (NNP) (NNP))"),
+            Tree.valueOf("(NP (NNP) (NNPS))"),
+            Tree.valueOf("(NP (JJ) (NNP))")
+    };
 
-    //create a Tree test that has a root node with the label "NP"
-    //and two children nodes with the labels "NN" and "NN"
-    public static Tree trial = Tree.valueOf("(ROOT (S (NP (NN Climate) (NN change)) (VP (VBZ is) (PP (IN upon) (NP (PRP us)))) (. .)))");
-    public static Tree test = Tree.valueOf("(NP (NN) (NN))");
-    public static Tree buff = null;
-
-    public static void blubber(){
-        System.out.println("bla " + trial.pennString());
-        System.out.println("blubber: " + checkIfTreeContainsSubtree(trial, test));
-
-
-
-
-        System.out.println("trial: " + trial.pennString());
+    //this takes a tree and checks if it matches any of the patterns
+    public static Tree checkTreeForPattern(Tree tree) {
+        boolean wasFound = false;
+        for (Tree patternTree : patternTrees) {
+            if (checkIfTreeContainsSubtree(tree, patternTree)) {
+                Tree buff = tree; //note: this isn't redundant, compiler might mark it as such
+                System.out.println("Found pattern: " + patternTree);
+                System.out.println("in tree: " + buff);
+                System.out.println("turned into: " + tree);
+                wasFound = true;
+            }
+        }
+        if (!wasFound) {
+            System.out.println("No pattern found in tree: " + tree);
+            //tip: if you see an error of the algorithm here (new pattern eg), use .pennString() to get the tree structure and try to fix it
+        }
+        return tree;
     }
 
 
-    //check if test contains specific given subtree
+    //check if a tree contains specific given subtree
     public static boolean checkIfTreeContainsSubtree(Tree tree, Tree subtree) {
         if (tree == null || subtree == null) {
             return false;
         }
-        if (tree.equals(subtree)) {
+        if (tree.equals(subtree)) { //todo: might be redundant since this should never happen
             return true;
         }
-        if(tree.label().equals(subtree.label())){
-            if(tree.children().length == subtree.children().length){
-                if((tree.getChildrenAsList().get(0).label() + "-1").equals(subtree.getChildrenAsList().get(0).label().toString())){
-                    if((tree.getChildrenAsList().get(1).label() + "-2").equals(subtree.getChildrenAsList().get(1).label().toString())){
+
+        //a label is a string represenation a node in the tree, so we check if the label of the tree is the same as the label of the subtree
+        if (tree.label().equals(subtree.label())) {
+            //tree patterns thus far have 2 children, so we check if the tree has as many
+            if (tree.children().length == subtree.children().length) {
+                //check if the subtree labels are equal to the tree labels
+                //the labels created by Tree.valueOf() have a -<number> attached to them, which is why they have to be added here
+                //this numbering system is however always similar, so we can just add it as a string to check for equality
+                //this would now eg check if a subtree (NP (NN climate) (NN change)) has the same labels as (NP (NN) (NN))
+                //if so, it extracts the words and changes the tree to (NP (NN climate change)) by removing one empty leaf
+                if ((tree.getChildrenAsList().get(0).label() + "-1").equals(subtree.getChildrenAsList().get(0).label().toString())) {
+                    if ((tree.getChildrenAsList().get(1).label() + "-2").equals(subtree.getChildrenAsList().get(1).label().toString())) {
 
                         //correct subtree found
                         String word1 = tree.getChildrenAsList().get(0).getChild(0).label().toString();
                         String word2 = tree.getChildrenAsList().get(1).getChild(0).label().toString();
-                        word1 = word1.replace("-1", "");
-                        word2 = word2.replace("-2", "");
+                        word1 = word1.substring(0, word1.length() - 2);
+                        word2 = word2.substring(0, word2.length() - 2);
                         String multiword = word1 + " " + word2;
 
                         //found multiword, put it into the tree
                         Tree multiWordLeaf = Tree.valueOf("(NN)");
                         multiWordLeaf.addChild(Tree.valueOf("(" + multiword + ")"));
                         tree.setChild(0, multiWordLeaf);
-                        tree.removeChild(1);
+                        if (!tree.getChild(1).equals(null)) { //todo: check if this is necessary
+                            tree.removeChild(1);
+                        }
 
                         return true;
                     }
-                }else{
-                    return false;
                 }
             }
         }
+
+        //this walks through the entire tree and its children recursively
+        //this however might lead to a slow down compared to a string based approach like further below
+        //also note the extra comment above the string based approach, giving some ideas how to improve this algorithm
         for (Tree child : tree.children()) {
             if (checkIfTreeContainsSubtree(child, subtree)) {
                 return true;
@@ -68,36 +88,31 @@ public class PreproQualiaPatternChecker {
         return false;
     }
 
-    /*
-     public static boolean checkIfTreeContainsSubtree(Tree tree, Tree subtree) {
-        if (tree == null || subtree == null) {
-            return false;
-        }
-        if (tree.equals(subtree)) {
-            return true;
-        }
-        if(tree.label().equals(subtree.label())){
+    //failure cases
+   /*
+   1)::::
 
-            if(tree.children().length == subtree.children().length){
-                for(int i = 0; i < tree.children().length; i++){
-                    if(tree.getChild(i).label().equals(subtree.getChild(i).label())){
-                       return true;
-                    }
-                }
-                return true;
-            }
-        }
-        for (Tree child : tree.children()) {
-            if (checkIfTreeContainsSubtree(child, subtree)) {
-                return true;
-            }
-        }
-        return false;
-    }
-     */
+   (ROOT
+  (S
+    (NP (DT Every) (NN child))
+    (VP (VBZ has)
+      (NP (DT a)
+        (ADJP (JJ right)
+          (S
+            (VP (TO to)
+              (VP (VB be)
+                (ADVP (RB fully))
+                (VP
+                  (VP (VBN included))
+                  (CC and)
+                  (VP (VBP thrive)
+                    (PP (IN in)
+                      (NP (DT the) (NN education)))))))))
+        (NN system)))
+    (. .)))
 
-    //############################## all this is the custom tree stuff ###############################
-
+    --> this tree should give back (NN education system) as well, not sure if it works with current code structure
+    */
     /**
      * common patterns (list has to be updated when something new is found):
      * (NML (NN family) (NN planning)) (NNS programs)) -> one to many parentheses, parent node missing?
@@ -113,7 +128,7 @@ public class PreproQualiaPatternChecker {
      * (NP (ADJP (IN off) (HYPH -) (NN road)) (NNS vehicles))
      * (NP (NN address) (NN soil)) (NP (NML (NN degradation) (CC and) (NN soil)) (NN health)) -> first part wrongly assumed to be a multiword, 2nd part contains two
      * (NP (JJ Australian) (NML (NN animal) (NN welfare)) (NNS standards)))
-     *
+     * <p>
      * currently working (covers most cases):
      * (NP (NN climate) (NN change))
      * (NP (NN groundwater) (NNS systems))
@@ -121,6 +136,12 @@ public class PreproQualiaPatternChecker {
      * (NP (NNP Nuclear) (NNPS Issues))
      * (NP (JJ Genetic) (NNP Engineering) (CD 13))
      */
+
+    //todo: #################### Potential improvements ################################################################################################
+    //### below: code that searches for patterns via string operations --> might be faster
+    //it might be clever to combine some parts of this with the above tree operations, so that you can check quick
+    //...if a pattern exists, so you don't have to walk through the entire tree every time
+    //...this also applies if you have more patterns in one tree
 
     public static String multiWordTree = ""; //todo access to new tree should be done differently
     private static final String[] patternList = {
