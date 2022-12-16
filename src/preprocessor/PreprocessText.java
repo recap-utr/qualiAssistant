@@ -159,8 +159,7 @@ public class PreprocessText {
                     //this will create new trees that contain multiwords like (NP climate change)
                     Tree consitutTree = coreSentence.constituencyParse();
 
-                    consitutTree = PreproQualiaPatternChecker.checkTreeForPattern(Tree.valueOf(consitutTree.toString()));
-
+                    consitutTree = PreproQualiaPatternChecker.checkForAllTreePattern(Tree.valueOf(consitutTree.toString()));
                     constituencyTrees.add(consitutTree);
 
                    /* this is using the string checking code

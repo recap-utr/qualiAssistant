@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 public class PreproQualiaPatternChecker {
 
+    private static boolean treeChecker = true; //this value is used for a while loop to go through one tree multiple times
+
     //todo: make it possible to check for multiple pattern in one tree (see ideas in other comments)
     //create a list of Tree Patterns
     private static final Tree[] patternTrees = {
@@ -31,9 +33,36 @@ public class PreproQualiaPatternChecker {
         }
         if (!wasFound) {
             System.out.println("No pattern found in tree: " + tree);
+            treeChecker = false;
             //tip: if you see an error of the algorithm here (new pattern eg), use .pennString() to get the tree structure and try to fix it
         }
         return tree;
+    }
+
+    //checks a tree for multiple patterns
+    public static Tree checkForAllTreePattern(Tree tree){
+        do{
+            checkTreeForPattern(tree);
+        }while (treeChecker);
+        System.out.println("########################end of tree check#######################################");
+        return tree;
+    }
+
+    //this takes a tree and checks for multiple patterns via using the string method further down
+    //it seems to have some issues, but should be faster than the previous method
+    public static Tree checkForAllPattern(Tree tree){
+        multiWordTree = tree.toString();
+        Tree bufferTree = tree.deepCopy();
+        int i = 0;
+
+        while (checkForPattern(multiWordTree)){
+            i++;
+            multiWordTree = checkTreeForPattern(bufferTree).toString();
+        }
+        if(i>1){
+            System.out.println("Found " + i + " patterns in tree: " + tree.pennString());
+        }
+        return bufferTree;
     }
 
 
@@ -64,6 +93,7 @@ public class PreproQualiaPatternChecker {
                         word1 = word1.substring(0, word1.length() - 2);
                         word2 = word2.substring(0, word2.length() - 2);
                         String multiword = word1 + " " + word2;
+                        multiword = multiword.replace("-", ""); //rarely the multiword contains a "-" -> likely caused by the subtree being found later than a double digit height
 
                         //found multiword, put it into the tree
                         Tree multiWordLeaf = Tree.valueOf("(NN)");
@@ -114,6 +144,9 @@ public class PreproQualiaPatternChecker {
     (. .)))
 
     --> this tree should give back (NN education system) as well, not sure if it works with current code structure
+
+    (ROOT (FRAG (NP (NN (address soil))) (NP (NML (NN degradation) (CC and) (NN soil)) (NN health)) (PP (IN as) (NP (NP (JJ key) (NN funding) (NNS priorities)) (PP (IN for) (NP (NML (JJ natural) (NN resource) (NN management)) (NNS programs))))) (. .)))
+   doesnt find soil health here
     */
     /**
      * common patterns (list has to be updated when something new is found):
@@ -207,12 +240,12 @@ public class PreproQualiaPatternChecker {
                     returnValue = buildMultiwordTree(bufferText, s);
                     if (returnValue) {
                         if (!bufferValue) {
-                            System.out.println(txt);
+                            //System.out.println(txt);
                             bufferValue = true;
                         } else {
                             returnValue = false;
                         }
-                        System.out.println(multiWordTree);
+                        //System.out.println(multiWordTree);
                         bufferText = multiWordTree;
                         break;
                     }
