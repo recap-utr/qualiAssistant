@@ -1,7 +1,7 @@
 # ReadMe
 
 ## Introduction
-**QualiAssistant** is a free and open-source system written in Java (requiring Java 18) for identification and extraction of *Qualia structures* from texts. Qualia structures express the meaning of lexical items and are divided into the four roles *formal*, *constitutive*, *agentive*, and *telic*.
+**QualiAssistant** is a free and open-source system written in Java (requiring Java 18) for identification and extraction of *Qualia structures* from texts. Qualia structures express the meaning of lexical items and are divided into the four roles *formal*, *constitutive*, *agentive*, and *telic*. We presented **QualiAssistant** at the 9th Workshop of Argument Mining ([see our paper](https://aclanthology.org/2022.argmining-1.19/)).
 
 ## First Time Setup
 The application requires search patterns for Qualia structures consisting of POS tag sequences as well as the dataset the user wants to search for Qualias.
