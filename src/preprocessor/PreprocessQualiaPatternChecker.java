@@ -4,7 +4,7 @@ import edu.stanford.nlp.trees.Tree;
 
 import java.util.regex.Pattern;
 
-public class PreproQualiaPatternChecker {
+public class PreprocessQualiaPatternChecker {
 
     private static boolean treeChecker = true; //this value is used for a while loop to go through one tree multiple times
 
@@ -25,14 +25,14 @@ public class PreproQualiaPatternChecker {
         for (Tree patternTree : patternTrees) {
             if (checkIfTreeContainsSubtree(tree, patternTree)) {
 
-                System.out.println("Found pattern: " + patternTree);
-                System.out.println("in tree: " + buff);
-                System.out.println("turned into: " + tree);
+                // System.out.println("Found pattern: " + patternTree);
+                // System.out.println("in tree: " + buff);
+                // System.out.println("turned into: " + tree);
                 wasFound = true;
             }
         }
         if (!wasFound) {
-            System.out.println("No pattern found in tree: " + tree);
+            // System.out.println("No pattern found in tree: " + tree);
             treeChecker = false;
             //tip: if you see an error of the algorithm here (new pattern eg), use .pennString() to get the tree structure and try to fix it
         }
@@ -44,7 +44,7 @@ public class PreproQualiaPatternChecker {
         do{
             checkTreeForPattern(tree);
         }while (treeChecker);
-        System.out.println("########################end of tree check#######################################");
+        // System.out.println("########################end of tree check#######################################");
         return tree;
     }
 
@@ -60,7 +60,7 @@ public class PreproQualiaPatternChecker {
             multiWordTree = checkTreeForPattern(bufferTree).toString();
         }
         if(i>1){
-            System.out.println("Found " + i + " patterns in tree: " + tree.pennString());
+            // System.out.println("Found " + i + " patterns in tree: " + tree.pennString());
         }
         return bufferTree;
     }
@@ -75,7 +75,7 @@ public class PreproQualiaPatternChecker {
             return true;
         }
 
-        //a label is a string represenation a node in the tree, so we check if the label of the tree is the same as the label of the subtree
+        //a label is a string representation a node in the tree, so we check if the label of the tree is the same as the label of the subtree
         if (tree.label().equals(subtree.label())) {
             //tree patterns thus far have 2 children, so we check if the tree has as many
             if (tree.children().length == subtree.children().length) {
@@ -99,7 +99,7 @@ public class PreproQualiaPatternChecker {
                         Tree multiWordLeaf = Tree.valueOf("(NN)");
                         multiWordLeaf.addChild(Tree.valueOf("(" + multiword + ")"));
                         tree.setChild(0, multiWordLeaf);
-                        if (!tree.getChild(1).equals(null)) { //todo: check if this is necessary
+                        if (tree.getChild(1) != null) { //todo: check if this is necessary
                             tree.removeChild(1);
                         }
 
@@ -305,7 +305,7 @@ public class PreproQualiaPatternChecker {
             }
 
             //build up the new tree and replace old one
-            String multiword = words[0] + "_" + words[1]; //todo: figure out why this _ is needed, it shouldnt be, but it breaks the entire tree if its just a space
+            String multiword = words[0] + "_" + words[1]; //todo: figure out why this _ is needed, it shouldn't be, but it breaks the entire tree if its just a space
             String fullTreePart = cursorText + words[0] + ") " + buffText + words[1] + "))";
             String newTreeRootText = "(" + pattern[0] + "(" + pattern[1] + " "; //this builds (NP (NN word word))
             //String newTreeRootText = "(" + pattern[0] + " "; -> this would build (NP word word)

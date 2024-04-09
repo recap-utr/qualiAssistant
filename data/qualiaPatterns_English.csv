@@ -26,3 +26,6 @@ Agentive;(DT/a) JJ/new <query>[NN,NNS]</query>,NP VBZ/has VBN/been <qualia>VBD</
 Agentive;(DT/a) JJ/complete <query>[NN,NNS]</query>,NP VBZ/has VBN/been <qualia>VBD</qualia>;[NML,NP]
 Agentive;TO (RB) <qualia>VB</qualia> JJ/new <query>[NN,NNS,NP]</query>;[NML,NP]
 Agentive;TO (RB) <qualia>VB</qualia> JJ/complete <query>[NN,NNS,NP]</query>;[NML,NP]
+Formal;<query>[NN,NNS]</query>,NP VBZ/is <qualia>[NN,NNS,NP]</qualia>;[NML,NP]
+Formal;<query>[NN,NNS]</query>,NP VBZ/is <qualia>[NN,NNS] [NN,NNS,NP]</qualia>;[NML,NP]
+Formal;<query>[NN,NNS]</query>,NP (PUNCT/,) CC/and JJ/other <qualia>[NN,NNS] [NN,NNS,NP]</qualia>;[NML,NP]
